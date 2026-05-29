@@ -6,25 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import Breadcrumbs from "@/components/workspace/Breadcrumbs";
+import WorkspaceSidebar from "@/components/workspace/Sidebar";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { buildBaseRoute } from "@/lib/utils";
-import {
-  Building2Icon,
-  ChevronsUpDownIcon,
-  LayoutDashboardIcon,
-  SettingsIcon,
-} from "lucide-react";
+import { SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -65,88 +53,56 @@ export default async function WorkspaceLayout({ children, params }: Props) {
     notFound();
   }
 
-  const navigationLinks = [
-    { title: "Dashboard", href: "/", icon: LayoutDashboardIcon },
-  ];
-  const bottomNavigationLinks = [
-    { title: "Settings", href: "/settings", icon: SettingsIcon },
-  ];
+  const userInitials = (name: string) => {
+    return name
+      .split(/\s+/gm)
+      .map((n) => n[0])
+      .join("");
+  };
 
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
-        {/*Sidebar*/}
+        <WorkspaceSidebar
+          currentWorkspaceName={membership.workspace.name}
+          currentworkspacePlan={membership.workspace.plan}
+          workspaces={workspaces}
+        />
 
-        <Sidebar collapsible="icon">
-          <SidebarHeader className="border-b">
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
+            <Breadcrumbs />
+
             <DropdownMenu>
-              <DropdownMenuTrigger className="w-full cursor-pointer outline-none">
-                <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted">
-                  <div className="size-8 flex aspect-square items-center justify-center text-muted rounded-lg bg-primary">
-                    <Building2Icon className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left  leading-tight">
-                    <span className="truncate text-sm">
-                      {membership.workspace.name}
-                    </span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {membership.workspace.plan}
-                    </span>
-                  </div>
-                  <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0" />
-                </div>
+              <DropdownMenuTrigger className="cursor-pointer">
+                <Avatar>
+                  <AvatarImage src={user.image!} alt="User Profile Image" />
+                  <AvatarFallback>{userInitials(user.name)}</AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {workspaces.map((workspace) => (
-                  <DropdownMenuItem
-                    key={workspace.slug}
-                    className="cursor-pointer focus:bg-muted focus:color-background! focus:stroke-background!"
-                  >
-                    <div className="size-8 flex aspect-square items-center justify-center text-muted rounded-lg bg-primary">
-                      <Building2Icon className="size-4 stroke-background!" />
-                    </div>
-                    <div className="grid flex-1 text-left  leading-tight">
-                      <span className="truncate text-sm">{workspace.name}</span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {workspace.plan}
-                      </span>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
+                <DropdownMenuItem className="focus:bg-muted">
+                  <a href={"/settings"} className="flex gap-2 items-center">
+                    <SettingsIcon />
+                    <span>Settings</span>
+                  </a>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarHeader>
+          </header>
+        </div>
 
-          <SidebarContent className="p-2">
-            <SidebarMenu>
-              {navigationLinks.map((link, idx) => (
-                <SidebarMenuItem key={idx}>
-                  <SidebarMenuButton asChild>
-                    <Link href={link.href}>
-                      <link.icon className="size-4" />
-                      <span>{link.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
+        {/*<div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6 md:h-18 shrink-0">
+            <div className="flex-1">
+              <span className="text-sm font-medium text-muted-foreground">
+                Workspace / Dashboard
+              </span>
+            </div>
+          </header>
 
-          <SidebarFooter className="p-2 border-t">
-            <SidebarMenu>
-              {bottomNavigationLinks.map((link, idx) => (
-                <SidebarMenuItem key={idx}>
-                  <SidebarMenuButton asChild>
-                    <Link href={link.href}>
-                      <link.icon className="size-4" />
-                      <span>{link.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
+          <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
+        </div>*/}
       </div>
     </SidebarProvider>
   );
