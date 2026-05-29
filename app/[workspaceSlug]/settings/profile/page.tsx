@@ -1,12 +1,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getServerSession } from "@/lib/auth.actions";
+import prisma from "@/lib/prisma";
 import { ImageIcon, SaveIcon } from "lucide-react";
+import Link from "next/link";
 
 export default async function ProfilePage() {
   const session = await getServerSession();
@@ -19,6 +29,21 @@ export default async function ProfilePage() {
       .join("");
   };
 
+  const memberships = await prisma.workspaceMember.findMany({
+    where: { userId: user.id },
+    select: {
+      id: true,
+      role: true,
+      workspace: {
+        select: {
+          name: true,
+          slug: true,
+          plan: true,
+        },
+      },
+    },
+  });
+
   return (
     <section className="p-6">
       <div className="mb-6">
@@ -27,56 +52,101 @@ export default async function ProfilePage() {
         </p>
       </div>
 
-      <Card className="py-0">
-        <CardContent className="space-y-6 py-4">
-          <div className="flex items-center gap-5">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src="/placeholder-user.jpg" />
-              <AvatarFallback>{userInitials()}</AvatarFallback>
-            </Avatar>
+      <div className="space-y-6">
+        <Card className="py-0">
+          <CardContent className="py-6">
+            <div className="flex flex-col items-center gap-3">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src="/placeholder-user.jpg" />
+                <AvatarFallback>{userInitials()}</AvatarFallback>
+              </Avatar>
 
-            <div className="space-y-2">
-              <Button variant="outline" size="sm">
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Change image
-              </Button>
+              <div className="flex flex-col items-center gap-1">
+                <Button variant="outline" size="sm">
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Change image
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Recommended size: 400×400.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="py-0">
+          <CardContent className="py-4">
+            <div className="space-y-4">
+              <Field className="gap-1">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  defaultValue="Gurvir Singh"
+                  placeholder="Please enter your full name."
+                />
+              </Field>
+
+              <Field className="gap-1">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue="gurvir@example.com"
+                  placeholder="Please enter your email address."
+                />
+              </Field>
+
+              <div>
+                <Button>
+                  <SaveIcon className="mr-2 h-4 w-4" />
+                  Save profile
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="py-0">
+          <CardContent className="py-4">
+            <div className="mb-4">
+              <h2 className="font-semibold">Workspace memberships</h2>
               <p className="text-sm text-muted-foreground">
-                JPG, PNG, or WEBP. Recommended size: 400×400.
+                Workspaces you are a member of.
               </p>
             </div>
-          </div>
 
-          <Separator />
-
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                defaultValue="Gurvir Singh"
-                placeholder="Please enter your full name."
-              />
-            </Field>
-
-            <Field>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                defaultValue="gurvir@example.com"
-                placeholder="Please enter your email address."
-              />
-            </Field>
-          </div>
-
-          <div className="flex justify-end">
-            <Button>
-              <SaveIcon className="mr-2 h-4 w-4" />
-              Save profile
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Workspace</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {memberships.map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell>
+                      <Link
+                        href={`https://${m.workspace.slug}.${process.env.APP_HOST}`}
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        {m.workspace.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{m.workspace.plan}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground capitalize">
+                      {m.role}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </section>
   );
 }

@@ -16,7 +16,7 @@ export default async function SecurityPage() {
       <Card className="py-0">
         <CardContent className="space-y-5 py-4">
           <div className="grid gap-5 md:grid-cols-2">
-            <Field>
+            <Field className="gap-1">
               <Label htmlFor="currentPassword">Current password</Label>
               <Input
                 id="currentPassword"
@@ -25,7 +25,7 @@ export default async function SecurityPage() {
               />
             </Field>
 
-            <Field>
+            <Field className="gap-1">
               <Label htmlFor="newPassword">New password</Label>
               <Input
                 id="newPassword"

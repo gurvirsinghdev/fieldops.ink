@@ -87,7 +87,7 @@ export default async function WorkspacePage() {
       <div className="space-y-6">
         <Card className="py-0">
           <CardContent className="py-4">
-            <Field>
+            <Field className="gap-1">
               <Label htmlFor="workspaceName">Workspace name</Label>
               <Input
                 id="workspaceName"
