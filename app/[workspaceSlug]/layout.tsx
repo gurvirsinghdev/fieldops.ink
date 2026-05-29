@@ -90,19 +90,9 @@ export default async function WorkspaceLayout({ children, params }: Props) {
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
+
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
-
-        {/*<div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6 md:h-18 shrink-0">
-            <div className="flex-1">
-              <span className="text-sm font-medium text-muted-foreground">
-                Workspace / Dashboard
-              </span>
-            </div>
-          </header>
-
-          <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
-        </div>*/}
       </div>
     </SidebarProvider>
   );
