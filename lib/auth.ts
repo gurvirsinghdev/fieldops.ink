@@ -35,4 +35,16 @@ export const auth = betterAuth({
       },
     },
   },
+  advanced: {
+    cookies: {
+      session_token: {
+        name: "better-auth.session_token",
+        attributes: {
+          sameSite: "lax",
+          domain: process.env.APP_HOST,
+          secure: process.env.NODE_ENV === "production",
+        },
+      },
+    },
+  },
 });

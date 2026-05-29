@@ -2,3 +2,7 @@
 @import "shadcn/tailwind.css";
 
 @import "./tweakcn.css";
+
+.container {
+    @apply mx-auto;
+}

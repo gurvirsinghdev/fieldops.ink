@@ -18,5 +18,11 @@ export default async function MyWorkspace() {
     redirect("/signin");
   }
 
-  redirect(`http://localhost:3000/workspace/${membership.workspace.slug}`);
+  const appHost = process.env.APP_HOST;
+  const appPort = appHost === "localhost" ? ":3000" : "";
+  const scheme = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  redirect(
+    `${scheme}://${appHost}${appPort}/workspace/${membership.workspace.slug}`,
+  );
 }
