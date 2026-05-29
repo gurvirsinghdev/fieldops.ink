@@ -1,4 +1,5 @@
 import { getServerSession } from "@/lib/auth.actions";
+import { buildBaseRoute } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -10,7 +11,7 @@ export default async function WorkspaceLayout({ children }: Props) {
   const user = session?.user;
 
   if (!user) {
-    return redirect("/signin");
+    return redirect(buildBaseRoute("/signin"));
   }
 
   return <div>{children}</div>;

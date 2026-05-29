@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "@/lib/auth.actions";
 import { redirect } from "next/navigation";
+import { buildBaseRoute } from "@/lib/utils";
 
 interface Props {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ export default async function AuthLayout({ children }: Props) {
   const user = session?.user;
 
   if (!!user) {
-    redirect("/my-workspace");
+    redirect(buildBaseRoute("/my-workspace"));
   }
 
   return (

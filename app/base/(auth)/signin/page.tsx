@@ -22,6 +22,7 @@ import { Loader2Icon } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { buildBaseRoute } from "@/lib/utils";
 
 const signUpSchema = z.object({
   email: z.email({
@@ -58,7 +59,7 @@ export default function SignUp() {
       toast.error(error.message);
     } else {
       toast.success("Account created!");
-      router.push("/my-workspace");
+      router.push(buildBaseRoute("/my-workspace"));
     }
   };
 
