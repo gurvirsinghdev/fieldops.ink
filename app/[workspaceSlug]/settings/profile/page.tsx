@@ -111,7 +111,7 @@ export default async function ProfilePage() {
             <div className="mb-4">
               <h2 className="font-semibold">Workspace memberships</h2>
               <p className="text-sm text-muted-foreground">
-                Workspaces you are a member of.
+                The workspaces you currently belong to.
               </p>
             </div>
 
