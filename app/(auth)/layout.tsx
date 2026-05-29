@@ -1,10 +1,19 @@
 import Link from "next/link";
+import { getServerSession } from "@/lib/auth.actions";
+import { redirect } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
 }
 
-export default function AuthLayout({ children }: Props) {
+export default async function AuthLayout({ children }: Props) {
+  const session = await getServerSession();
+  const user = session?.user;
+
+  if (!!user) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="w-screen h-screen flex flex-col">
       <header className="border-b p-4">

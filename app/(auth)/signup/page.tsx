@@ -54,7 +54,7 @@ export default function SignUp() {
     setIsLoading(true);
     const { error } = await authClient.signUp.email({
       ...data,
-      callbackURL: "/",
+      callbackURL: "/dashboard",
     });
     setIsLoading(false);
 
