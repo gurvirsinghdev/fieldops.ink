@@ -11,15 +11,15 @@ model User {
   id            String   @id
   name          String
   email         String
-  emailVerified Boolean
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  workspaceMembers WorkspaceMember[]
-  auditLogs        AuditLog[]
   sessions         Session[]
   accounts         Account[]
+  workspaceMembers WorkspaceMember[]
+  auditLogs        AuditLog[]
 
   @@unique([email])
   @@map("user")
@@ -29,8 +29,8 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
   userId    String
@@ -38,6 +38,7 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
+  @@index([userId])
   @@map("session")
 }
 
@@ -53,22 +54,24 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("account")
 }
 
 model Verification {
-  id         String    @id
+  id         String   @id
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
+  @@index([identifier])
   @@map("verification")
 }
 
