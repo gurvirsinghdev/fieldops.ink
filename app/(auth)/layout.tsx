@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: Props) {
   const user = session?.user;
 
   if (!!user) {
-    redirect("/dashboard");
+    redirect("/my-workspace");
   }
 
   return (

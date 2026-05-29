@@ -10,4 +10,29 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async function (user) {
+          const firstName = user.name.split(/\s/).shift();
+          const workspaceName = !firstName
+            ? "Default Workspace"
+            : `${firstName}'s Workspace`;
+
+          await prisma.workspace.create({
+            data: {
+              name: workspaceName,
+              slug: crypto.randomUUID(),
+              members: {
+                create: {
+                  userId: user.id,
+                  role: "Owner",
+                },
+              },
+            },
+          });
+        },
+      },
+    },
+  },
 });

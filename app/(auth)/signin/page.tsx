@@ -58,7 +58,7 @@ export default function SignUp() {
       toast.error(error.message);
     } else {
       toast.success("Account created!");
-      router.push("/");
+      router.push("/my-workspace");
     }
   };
 

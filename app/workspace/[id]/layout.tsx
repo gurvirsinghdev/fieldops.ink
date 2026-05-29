@@ -5,7 +5,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default async function DashboardLayout({ children }: Props) {
+export default async function WorkspaceLayout({ children }: Props) {
   const session = await getServerSession();
   const user = session?.user;
 

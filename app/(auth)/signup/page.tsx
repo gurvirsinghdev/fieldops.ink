@@ -52,17 +52,14 @@ export default function SignUp() {
 
   const signUpHandler = async (data: SignUpValues) => {
     setIsLoading(true);
-    const { error } = await authClient.signUp.email({
-      ...data,
-      callbackURL: "/dashboard",
-    });
+    const { error } = await authClient.signUp.email(data);
     setIsLoading(false);
 
     if (error) {
       toast.error(error.message);
     } else {
       toast.success("Account created!");
-      router.push("/");
+      router.push("/my-workspace");
     }
   };
 
@@ -72,7 +69,7 @@ export default function SignUp() {
         <CardHeader>
           <CardTitle>Create Account</CardTitle>
           <CardDescription>
-            Please create you account to access your dashboard.
+            Please create you account to access your workspace.
           </CardDescription>
         </CardHeader>
 
