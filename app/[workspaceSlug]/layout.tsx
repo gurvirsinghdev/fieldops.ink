@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +7,7 @@ import {
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Breadcrumbs from "@/components/workspace/Breadcrumbs";
 import WorkspaceSidebar from "@/components/workspace/Sidebar";
+import { UserAvatar } from "@/components/workspace/UserAvatar";
 import { StoreHydrator } from "@/components/providers/StoreHydrator";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
@@ -52,13 +52,6 @@ export default async function WorkspaceLayout({ children, params }: Props) {
     notFound();
   }
 
-  const userInitials = (name: string) => {
-    return name
-      .split(/\s+/gm)
-      .map((n) => n[0])
-      .join("");
-  };
-
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
@@ -76,10 +69,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
 
             <DropdownMenu>
               <DropdownMenuTrigger className="cursor-pointer">
-                <Avatar>
-                  <AvatarImage src={user.image!} alt="User Profile Image" />
-                  <AvatarFallback>{userInitials(user.name)}</AvatarFallback>
-                </Avatar>
+                <UserAvatar />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem className="focus:bg-muted">

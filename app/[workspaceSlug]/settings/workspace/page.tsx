@@ -1,10 +1,14 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon } from "lucide-react";
 
 const plans = [
@@ -71,10 +75,14 @@ const plans = [
   },
 ];
 
-const currentPlan = "spark";
-
-export default async function WorkspacePage() {
-  const currentIndex = plans.findIndex((p) => p.key === currentPlan);
+export default function WorkspacePage() {
+  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const currentPlan = currentWorkspace?.plan ?? null;
+  const planKnown =
+    currentPlan !== null && plans.some((p) => p.key === currentPlan);
+  const currentIndex = planKnown
+    ? plans.findIndex((p) => p.key === currentPlan)
+    : -1;
 
   return (
     <section className="p-6">
@@ -87,14 +95,25 @@ export default async function WorkspacePage() {
       <div className="space-y-6">
         <Card className="py-0">
           <CardContent className="py-4">
-            <Field className="gap-1">
-              <Label htmlFor="workspaceName">Workspace name</Label>
-              <Input
-                id="workspaceName"
-                defaultValue="FieldOps Workspace"
-                placeholder="Please enter your workspace name."
-              />
-            </Field>
+            <div className="grid gap-5 md:grid-cols-2">
+              <Field className="gap-1">
+                <Label htmlFor="workspaceName">Workspace name</Label>
+                <Input
+                  id="workspaceName"
+                  defaultValue={currentWorkspace?.name ?? ""}
+                  placeholder="Please enter your workspace name."
+                />
+              </Field>
+
+              <Field className="gap-1">
+                <Label htmlFor="workspaceSlug">Workspace slug</Label>
+                <Input
+                  id="workspaceSlug"
+                  defaultValue={currentWorkspace?.slug ?? ""}
+                  placeholder="your-workspace-slug"
+                />
+              </Field>
+            </div>
           </CardContent>
         </Card>
 
@@ -150,7 +169,11 @@ export default async function WorkspacePage() {
                     </div>
 
                     <div className="mt-5">
-                      {isActive ? (
+                      {!planKnown ? (
+                        <Button className="w-full" disabled>
+                          <Spinner className="mr-2" />
+                        </Button>
+                      ) : isActive ? (
                         <Button className="w-full" disabled>
                           Current plan
                         </Button>

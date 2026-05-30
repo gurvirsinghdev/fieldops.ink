@@ -20,7 +20,16 @@ export function StoreHydrator({ currentWorkspace, workspaces, user }: Props) {
     if (prevKey.current === key) return;
     prevKey.current = key;
 
-    useWorkspaceStore.setState({ currentWorkspace, workspaces });
+    useWorkspaceStore.setState({
+      currentWorkspace: {
+        ...currentWorkspace,
+        plan: currentWorkspace.plan.toLowerCase(),
+      },
+      workspaces: workspaces.map((w) => ({
+        ...w,
+        plan: w.plan.toLowerCase(),
+      })),
+    });
     useUserStore.setState({ user });
   }, [currentWorkspace, workspaces, user]);
 

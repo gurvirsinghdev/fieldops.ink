@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { UserAvatar } from "@/components/workspace/UserAvatar";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { ImageIcon, SaveIcon } from "lucide-react";
@@ -21,13 +21,6 @@ import Link from "next/link";
 export default async function ProfilePage() {
   const session = await getServerSession();
   const user = session!.user;
-
-  const userInitials = () => {
-    return user.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("");
-  };
 
   const memberships = await prisma.workspaceMember.findMany({
     where: { userId: user.id },
@@ -56,10 +49,7 @@ export default async function ProfilePage() {
         <Card className="py-0">
           <CardContent className="py-6">
             <div className="flex flex-col items-center gap-3">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>{userInitials()}</AvatarFallback>
-              </Avatar>
+              <UserAvatar size="lg" />
 
               <div className="flex flex-col items-center gap-1">
                 <Button variant="outline" size="sm">
@@ -81,7 +71,7 @@ export default async function ProfilePage() {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  defaultValue="Gurvir Singh"
+                  defaultValue={user.name}
                   placeholder="Please enter your full name."
                 />
               </Field>
@@ -91,7 +81,7 @@ export default async function ProfilePage() {
                 <Input
                   id="email"
                   type="email"
-                  defaultValue="gurvir@example.com"
+                  defaultValue={user.email}
                   placeholder="Please enter your email address."
                 />
               </Field>
