@@ -12,10 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserAvatar } from "@/components/workspace/UserAvatar";
+import { ProfileImageCard } from "@/components/workspace/ProfileImageCard";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
-import { ImageIcon, SaveIcon } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function ProfilePage() {
@@ -46,23 +46,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="space-y-6">
-        <Card className="py-0">
-          <CardContent className="py-6">
-            <div className="flex flex-col items-center gap-3">
-              <UserAvatar size="lg" />
-
-              <div className="flex flex-col items-center gap-1">
-                <Button variant="outline" size="sm">
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Change image
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Recommended size: 400×400.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileImageCard />
 
         <Card className="py-0">
           <CardContent className="py-4">
