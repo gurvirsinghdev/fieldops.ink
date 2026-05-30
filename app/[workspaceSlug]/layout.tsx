@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,11 +8,11 @@ import {
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Breadcrumbs from "@/components/workspace/Breadcrumbs";
 import WorkspaceSidebar from "@/components/workspace/Sidebar";
+import { StoreHydrator } from "@/components/providers/StoreHydrator";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { buildBaseRoute } from "@/lib/utils";
 import { SettingsIcon } from "lucide-react";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
@@ -63,11 +62,13 @@ export default async function WorkspaceLayout({ children, params }: Props) {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
-        <WorkspaceSidebar
-          currentWorkspaceName={membership.workspace.name}
-          currentworkspacePlan={membership.workspace.plan}
+        <StoreHydrator
+          currentWorkspace={membership.workspace}
           workspaces={workspaces}
+          user={{ id: user.id, name: user.name, email: user.email, image: user.image }}
         />
+
+        <WorkspaceSidebar />
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">

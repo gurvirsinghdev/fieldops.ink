@@ -21,18 +21,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
-type Props = {
-  currentWorkspaceName: string;
-  currentworkspacePlan: string;
-  workspaces: { name: string; plan: string; slug: string }[];
-};
+export default function WorkspaceSidebar() {
+  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const workspaces = useWorkspaceStore((s) => s.workspaces);
 
-export default function WorkspaceSidebar({
-  currentWorkspaceName,
-  currentworkspacePlan,
-  workspaces,
-}: Props) {
   const navigationLinks = [
     { title: "Dashboard", href: "/", icon: LayoutDashboardIcon },
   ];
@@ -49,12 +43,16 @@ export default function WorkspaceSidebar({
               <div className="size-8 flex aspect-square items-center justify-center rounded-lg bg-primary shrink-0">
                 <Building2Icon className="size-4 stroke-background!" />
               </div>
-              <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm">{currentWorkspaceName}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {currentworkspacePlan}
-                </span>
-              </div>
+              {currentWorkspace && (
+                <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate text-sm">
+                    {currentWorkspace.name}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {currentWorkspace.plan}
+                  </span>
+                </div>
+              )}
               <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
             </div>
           </DropdownMenuTrigger>
