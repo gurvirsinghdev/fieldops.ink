@@ -47,7 +47,12 @@ export async function POST(request: Request) {
     });
 
     return Response.json(updatedUser);
-  } catch {
+  } catch (err) {
+    console.error(
+      "Profile image upload/update failed for user %s:",
+      session.user.id,
+      err,
+    );
     return Response.json({ error: "Upload failed" }, { status: 500 });
   }
 }

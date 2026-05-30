@@ -16,7 +16,8 @@ export async function uploadProfileImage(file: File): Promise<string> {
         { folder: "profile-images" },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result!);
+          else if (!result) reject(new Error("Cloudinary upload returned no result"));
+          else resolve(result);
         },
       );
       uploadStream.end(buffer);
