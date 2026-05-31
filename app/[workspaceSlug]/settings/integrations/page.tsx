@@ -230,9 +230,11 @@ export default async function IntegrationsPage() {
               </div>
 
               <div className="shrink-0 ml-4">
-                <Button variant="outline">
-                  Connect
-                  <ArrowRightIcon className="ml-2 h-4 w-4" />
+                <Button variant="outline" asChild>
+                  <Link href={`/api/integrations/quickbooks/auth`}>
+                    Connect
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </div>
