@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { WorkspaceSettingsForm } from "@/components/workspace/WorkspaceSettingsForm";
+import { WorkspaceImageCard } from "@/components/workspace/WorkspaceImageCard";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon } from "lucide-react";
@@ -91,6 +92,8 @@ export default function WorkspacePage() {
       </div>
 
       <div className="space-y-6">
+        <WorkspaceImageCard />
+
         <WorkspaceSettingsForm
           workspace={{
             name: currentWorkspace?.name ?? "",

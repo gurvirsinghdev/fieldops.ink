@@ -13,7 +13,7 @@ export default async function IntegrationsPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border bg-sidebar/80 p-4 transition-colors">
+      <div className="rounded-lg border bg-card p-4 transition-colors">
         <div className="flex items-start justify-between gap-4">
           <div className="flex gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
