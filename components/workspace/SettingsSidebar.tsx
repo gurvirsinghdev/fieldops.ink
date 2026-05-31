@@ -38,14 +38,14 @@ export default function SettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 shrink-0 h-full border-r bg-sidebar text-sidebar-foreground flex flex-col">
-      <div className="flex items-center gap-2 px-4 h-14 border-b">
+    <aside className="w-full shrink-0 border-b bg-sidebar text-sidebar-foreground md:w-56 md:h-full md:border-r md:border-b-0">
+      <div className="flex items-center gap-2 px-4 h-14 border-b md:border-b">
         <SettingsIcon className="size-4 shrink-0" />
         <span className="text-sm">Settings</span>
       </div>
 
       <nav className="flex-1 p-2">
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-row gap-1 md:flex-col">
           {links.map((link) => {
             const isActive = pathname === link.href;
 
@@ -54,13 +54,13 @@ export default function SettingsSidebar() {
                 <Link
                   href={link.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground whitespace-nowrap",
                     isActive &&
                       "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
                   )}
                 >
                   <link.icon className="size-4 shrink-0" />
-                  <span>{link.title}</span>
+                  <span className="hidden md:inline">{link.title}</span>
                 </Link>
               </li>
             );
