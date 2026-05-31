@@ -43,16 +43,14 @@ export default function WorkspaceSidebar() {
               <div className="size-8 flex aspect-square items-center justify-center rounded-lg bg-primary shrink-0">
                 <Building2Icon className="size-4 stroke-background!" />
               </div>
-              {currentWorkspace && (
-                <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="truncate text-sm">
-                    {currentWorkspace.name}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {currentWorkspace.plan}
-                  </span>
-                </div>
-              )}
+              <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="truncate text-sm">
+                  {currentWorkspace?.name}&nbsp;
+                </span>
+                <span className="truncate capitalize text-xs text-muted-foreground">
+                  {currentWorkspace?.plan}&nbsp;
+                </span>
+              </div>
               <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
             </div>
           </DropdownMenuTrigger>
