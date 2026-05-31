@@ -12,8 +12,9 @@ import { StoreHydrator } from "@/components/providers/StoreHydrator";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { buildBaseRoute } from "@/lib/utils";
-import { SettingsIcon } from "lucide-react";
+import { Building2Icon, ChevronsUpDownIcon, SettingsIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
+import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
 
 interface Props {
   children: React.ReactNode;
@@ -66,7 +67,26 @@ export default async function WorkspaceLayout({ children, params }: Props) {
           }}
         />
 
-        <WorkspaceSidebar />
+        <WorkspaceSidebar
+          trigger={
+            <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent">
+              <WorkspaceAvatar
+                size="sm"
+                className="rounded-lg shrink-0"
+                workspace={membership.workspace}
+              />
+              <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="truncate text-sm">
+                  {membership.workspace.name}&nbsp;
+                </span>
+                <span className="truncate capitalize text-xs text-muted-foreground">
+                  {membership.workspace.plan.toLowerCase()}&nbsp;
+                </span>
+              </div>
+              <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
+            </div>
+          }
+        />
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
