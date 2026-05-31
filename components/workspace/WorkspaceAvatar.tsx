@@ -26,7 +26,7 @@ export function WorkspaceAvatar({
 
   return (
     <Avatar
-      className={`${sizeClasses[size]} rounded-lg border-none! ${className ?? ""}`}
+      className={`${sizeClasses[size]} rounded-lg after:rounded-lg ${className ?? ""}`}
     >
       <AvatarImage
         src={workspace?.image ?? ""}
