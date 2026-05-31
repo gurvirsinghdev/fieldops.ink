@@ -1,14 +1,12 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DisconnectIntegrationButton } from "@/components/workspace/DisconnectIntegrationButton";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import {
   ArrowRightIcon,
-  Building2Icon,
   CheckCircle2Icon,
   ClockIcon,
-  ExternalLinkIcon,
   PlugZapIcon,
   TriangleAlertIcon,
   XCircleIcon,
@@ -22,9 +20,6 @@ const availableProviders = [
     name: "QuickBooks",
     description:
       "Sync customers, invoices, and payments automatically with your accounting.",
-    icon: Building2Icon,
-    iconBg:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
   },
 ] as const;
 
@@ -88,13 +83,20 @@ export default async function IntegrationsPage() {
     },
   });
 
-  const connectedProviders = new Set(integrations.map((i) => i.provider));
+  const activeIntegrations = integrations.filter(
+    (i) => i.status !== "Disconnected",
+  );
+
+  const connectedProviders = new Set(
+    integrations.filter((i) => i.status === "Connected").map((i) => i.provider),
+  );
 
   const unconnectedProviders = availableProviders.filter(
     (p) => !connectedProviders.has(p.provider),
   );
 
-  const hasContent = integrations.length > 0 || unconnectedProviders.length > 0;
+  const hasContent =
+    activeIntegrations.length > 0 || unconnectedProviders.length > 0;
 
   return (
     <section className="p-6">
@@ -120,12 +122,9 @@ export default async function IntegrationsPage() {
         </Card>
       ) : (
         <div className="space-y-3 bg-card">
-          {integrations.map((integration) => {
+          {activeIntegrations.map((integration) => {
             const latestRun = integration.integrationSyncRuns[0];
             const StatusIcon = statusIcon[integration.status] ?? PlugZapIcon;
-            const provider = availableProviders.find(
-              (p) => p.provider === integration.provider,
-            );
 
             return (
               <div
@@ -133,24 +132,14 @@ export default async function IntegrationsPage() {
                 className="flex items-center justify-between rounded-lg border p-4"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${provider?.iconBg ?? "bg-muted"}`}
-                  >
-                    {provider ? (
-                      <provider.icon className="h-5 w-5" />
-                    ) : (
-                      <PlugZapIcon className="h-5 w-5" />
-                    )}
-                  </div>
-
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">
-                        {integration.name}
-                      </span>
                       <StatusIcon
                         className={`size-4 shrink-0 ${statusColor[integration.status] ?? ""}`}
                       />
+                      <span className="font-medium truncate">
+                        {integration.name}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -185,25 +174,11 @@ export default async function IntegrationsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                  <Badge
-                    variant={
-                      integration.status === "Connected"
-                        ? "default"
-                        : integration.status === "Error"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                    className="capitalize"
-                  >
-                    {integration.status.toLowerCase()}
-                  </Badge>
-
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href={`/settings/integrations/${integration.id}`}>
-                      Manage
-                      <ExternalLinkIcon className="ml-2 h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
+                  {integration.status === "Connected" && (
+                    <DisconnectIntegrationButton
+                      integrationId={integration.id}
+                    />
+                  )}
                 </div>
               </div>
             );
@@ -215,12 +190,6 @@ export default async function IntegrationsPage() {
               className="flex items-center justify-between rounded-lg border p-4"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${provider.iconBg}`}
-                >
-                  <provider.icon className="h-5 w-5" />
-                </div>
-
                 <div className="min-w-0">
                   <span className="font-medium">{provider.name}</span>
                   <p className="text-sm text-muted-foreground truncate">
