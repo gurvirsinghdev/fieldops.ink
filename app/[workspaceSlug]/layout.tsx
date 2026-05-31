@@ -12,7 +12,7 @@ import { StoreHydrator } from "@/components/providers/StoreHydrator";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { buildBaseRoute } from "@/lib/utils";
-import { Building2Icon, ChevronsUpDownIcon, SettingsIcon } from "lucide-react";
+import { ChevronsUpDownIcon, SettingsIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
 
@@ -69,7 +69,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
 
         <WorkspaceSidebar
           trigger={
-            <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent">
+            <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted group-data-[collapsible=icon]:p-[10.5]! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent">
               <WorkspaceAvatar
                 size="sm"
                 className="rounded-lg shrink-0"
