@@ -58,7 +58,12 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <StoreHydrator
           currentWorkspace={membership.workspace}
           workspaces={workspaces}
-          user={{ id: user.id, name: user.name, email: user.email, image: user.image }}
+          user={{
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          }}
         />
 
         <WorkspaceSidebar />

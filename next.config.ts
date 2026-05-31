@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const appHost = process.env.APP_HOST!;
+const appHost = process.env.NEXT_PUBLIC_APP_HOST!;
 
 const nextConfig: NextConfig = {
   reactCompiler: true,

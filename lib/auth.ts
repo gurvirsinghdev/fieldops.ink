@@ -41,10 +41,11 @@ export const auth = betterAuth({
         name: "better-auth.session_token",
         attributes: {
           sameSite: "lax",
-          domain: process.env.APP_HOST,
+          domain: process.env.NEXT_PUBLIC_APP_HOST,
           secure: process.env.NODE_ENV === "production",
         },
       },
     },
   },
+  trustedOrigins: ["*"],
 });

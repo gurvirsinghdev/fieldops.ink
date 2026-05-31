@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function buildBaseRoute(path: string) {
-  const appHost = process.env.APP_HOST!;
+  const appHost = process.env.NEXT_PUBLIC_APP_HOST!;
   const appPort = appHost === "localhost" ? ":3000" : "";
   const scheme = appHost === "localhost" ? "http" : "https";
 
@@ -16,7 +16,7 @@ export function buildBaseRoute(path: string) {
 }
 
 export function buildWorkspaceRoute(workspaceSlug: string) {
-  const appHost = process.env.APP_HOST!;
+  const appHost = process.env.NEXT_PUBLIC_APP_HOST!;
   const appPort = appHost === "localhost" ? ":3000" : "";
   const scheme = appHost === "localhost" ? "http" : "https";
 

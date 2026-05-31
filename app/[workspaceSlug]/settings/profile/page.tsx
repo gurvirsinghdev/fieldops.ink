@@ -1,9 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -12,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ProfileForm } from "@/components/workspace/ProfileForm";
 import { ProfileImageCard } from "@/components/workspace/ProfileImageCard";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
-import { SaveIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function ProfilePage() {
@@ -48,37 +44,7 @@ export default async function ProfilePage() {
       <div className="space-y-6">
         <ProfileImageCard />
 
-        <Card className="py-0">
-          <CardContent className="py-4">
-            <div className="space-y-4">
-              <Field className="gap-1">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  defaultValue={user.name}
-                  placeholder="Please enter your full name."
-                />
-              </Field>
-
-              <Field className="gap-1">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  defaultValue={user.email}
-                  placeholder="Please enter your email address."
-                />
-              </Field>
-
-              <div>
-                <Button>
-                  <SaveIcon className="mr-2 h-4 w-4" />
-                  Save profile
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileForm user={{ name: user.name, email: user.email }} />
 
         <Card className="py-0">
           <CardContent className="py-4">
@@ -102,7 +68,7 @@ export default async function ProfilePage() {
                   <TableRow key={m.id}>
                     <TableCell>
                       <Link
-                        href={`https://${m.workspace.slug}.${process.env.APP_HOST}`}
+                        href={`https://${m.workspace.slug}.${process.env.NEXT_PUBLIC_APP_HOST}`}
                         className="text-primary underline-offset-2 hover:underline"
                       >
                         {m.workspace.name}
