@@ -3,10 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { WorkspaceSettingsForm } from "@/components/workspace/WorkspaceSettingsForm";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon } from "lucide-react";
@@ -93,29 +91,12 @@ export default function WorkspacePage() {
       </div>
 
       <div className="space-y-6">
-        <Card className="py-0">
-          <CardContent className="py-4">
-            <div className="grid gap-5 md:grid-cols-2">
-              <Field className="gap-1">
-                <Label htmlFor="workspaceName">Workspace name</Label>
-                <Input
-                  id="workspaceName"
-                  defaultValue={currentWorkspace?.name ?? ""}
-                  placeholder="Please enter your workspace name."
-                />
-              </Field>
-
-              <Field className="gap-1">
-                <Label htmlFor="workspaceSlug">Workspace slug</Label>
-                <Input
-                  id="workspaceSlug"
-                  defaultValue={currentWorkspace?.slug ?? ""}
-                  placeholder="your-workspace-slug"
-                />
-              </Field>
-            </div>
-          </CardContent>
-        </Card>
+        <WorkspaceSettingsForm
+          workspace={{
+            name: currentWorkspace?.name ?? "",
+            slug: currentWorkspace?.slug ?? "",
+          }}
+        />
 
         <Card className="py-0">
           <CardContent className="py-4">
