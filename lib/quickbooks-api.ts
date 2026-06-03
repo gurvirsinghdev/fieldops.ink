@@ -10,7 +10,6 @@ export interface QBCompanyInfo {
     city: string | null;
     province: string | null;
     postalCode: string | null;
-    country: string | null;
   } | null;
 }
 
@@ -54,7 +53,6 @@ export async function fetchCompanyInfo(
           province:
             company.PrimaryAddr.CountrySubDivisionCode ?? null,
           postalCode: company.PrimaryAddr.PostalCode ?? null,
-          country: company.PrimaryAddr.Country ?? null,
         }
       : null,
   };
