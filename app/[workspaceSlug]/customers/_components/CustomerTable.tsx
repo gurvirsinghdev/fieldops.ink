@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { SearchIcon } from "lucide-react";
+import { DownloadIcon, Loader2Icon, SearchIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -10,15 +11,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import type { Customer } from "./mockData";
 import { CustomerRow } from "./CustomerRow";
 
 interface Props {
   customers: Customer[];
+  qbConnected: boolean;
 }
 
-export function CustomerTable({ customers }: Props) {
+export function CustomerTable({ customers, qbConnected }: Props) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
+  const [importing, setImporting] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return customers;
@@ -33,10 +39,33 @@ export function CustomerTable({ customers }: Props) {
     );
   }, [customers, search]);
 
+  async function handleImport() {
+    setImporting(true);
+    try {
+      const res = await fetch(
+        "/api/integrations/quickbooks/import/customers",
+        { method: "POST" },
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error ?? "Import failed");
+        return;
+      }
+
+      toast.success(`Imported ${data.imported} customer${data.imported !== 1 ? "s" : ""} from QuickBooks`);
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setImporting(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col h-full bg-card">
+    <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
-        <div className="relative flex-1 max-w-xs bg-card! rounded-lg border border-border">
+        <div className="relative flex-1 max-w-xs">
           <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
           <Input
             placeholder="Search customers..."
@@ -46,19 +75,35 @@ export function CustomerTable({ customers }: Props) {
           />
         </div>
 
+        {qbConnected && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleImport}
+            disabled={importing}
+          >
+            {importing ? (
+              <Loader2Icon className="size-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <DownloadIcon className="size-3.5 mr-1.5" />
+            )}
+            Import from QuickBooks
+          </Button>
+        )}
+
         <div className="ml-auto text-xs text-muted-foreground tabular-nums">
           {filtered.length} customer{filtered.length !== 1 ? "s" : ""}
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Name</TableHead>
               <TableHead className="w-40">Phone</TableHead>
               <TableHead className="w-60">Email</TableHead>
-              <TableHead className="flex justify-end">Actions</TableHead>
+              <TableHead className="w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

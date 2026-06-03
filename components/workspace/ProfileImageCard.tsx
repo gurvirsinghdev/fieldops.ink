@@ -27,7 +27,7 @@ export function ProfileImageCard() {
                 Change image
               </Button>
               <p className="text-xs text-muted-foreground">
-                Recommended size: 400×400.
+                Square image recommended.
               </p>
             </div>
           </div>
