@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
 import { buildBaseHost } from "@/lib/quickbooks";
+import { fetchCompanyInfo } from "@/lib/quickbooks-api";
 
 async function verifyState(state: string): Promise<{ slug: string }> {
   const secret = process.env.BETTER_AUTH_SECRET!;
@@ -177,7 +178,10 @@ export async function GET(request: NextRequest) {
     select: { id: true },
   });
 
+  let integrationId: string;
+
   if (existing) {
+    integrationId = existing.id;
     await prisma.integration.update({
       where: { id: existing.id },
       data: {
@@ -188,7 +192,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } else {
-    await prisma.integration.create({
+    const created = await prisma.integration.create({
       data: {
         workspaceId: workspace.id,
         provider: "quickbooks",
@@ -199,7 +203,26 @@ export async function GET(request: NextRequest) {
         refreshTokenEncrypted: encryptedRefresh,
         tokenExpiresAt: new Date(Date.now() + expiresIn * 1000),
       },
+      select: { id: true },
     });
+    integrationId = created.id;
+  }
+
+  // Fetch and store QuickBooks company info
+  try {
+    const env = process.env.QUICKBOOKS_ENVIRONMENT ?? "sandbox";
+    const companyInfo = await fetchCompanyInfo(accessToken, realmId, env);
+
+    await prisma.integration.update({
+      where: { id: integrationId },
+      data: {
+        externalName: companyInfo.companyName,
+        config: JSON.parse(JSON.stringify({ companyInfo })),
+      },
+    });
+  } catch (err) {
+    console.error("Failed to fetch QuickBooks company info:", err);
+    // Don't fail the whole flow — company info can be backfilled later
   }
 
   return NextResponse.redirect(buildWorkspaceRedirect(stateData.slug));
