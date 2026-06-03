@@ -2,7 +2,6 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { Customer } from "./mockData";
 import { CustomerCell } from "./CustomerCell";
-import { cn } from "@/lib/utils";
 
 interface Props {
   customer: Customer;

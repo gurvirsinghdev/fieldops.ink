@@ -34,9 +34,9 @@ export function CustomerTable({ customers }: Props) {
   }, [customers, search]);
 
   return (
-    <div className="flex flex-col h-full rounded-lg border bg-card">
+    <div className="flex flex-col h-full bg-card">
       <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
-        <div className="relative flex-1 max-w-xs bg-card! rounded border border-border">
+        <div className="relative flex-1 max-w-xs bg-card! rounded-lg border border-border">
           <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
           <Input
             placeholder="Search customers..."
