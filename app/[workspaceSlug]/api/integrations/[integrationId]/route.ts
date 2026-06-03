@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
+import { revokeQuickBooksToken } from "@/lib/quickbooks";
 
 export async function PATCH(
   _request: NextRequest,
@@ -15,7 +16,12 @@ export async function PATCH(
 
   const integration = await prisma.integration.findUnique({
     where: { id: integrationId },
-    select: { id: true, workspaceId: true },
+    select: {
+      id: true,
+      workspaceId: true,
+      provider: true,
+      refreshTokenEncrypted: true,
+    },
   });
 
   if (!integration) {
@@ -32,6 +38,10 @@ export async function PATCH(
 
   if (!membership) {
     return Response.json({ error: "Not a member" }, { status: 403 });
+  }
+
+  if (integration.provider === "quickbooks") {
+    await revokeQuickBooksToken(integration.refreshTokenEncrypted);
   }
 
   await prisma.integration.update({

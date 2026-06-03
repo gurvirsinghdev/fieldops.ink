@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { encrypt } from "@/lib/encryption";
-
-function buildBaseHost() {
-  const host = process.env.NEXT_PUBLIC_APP_HOST!;
-  const port = host === "localhost" ? ":3000" : "";
-  const scheme = host === "localhost" ? "http" : "https";
-  return `${scheme}://${host}${port}`;
-}
+import { buildBaseHost } from "@/lib/quickbooks";
 
 async function verifyState(state: string): Promise<{ slug: string }> {
   const secret = process.env.BETTER_AUTH_SECRET!;
@@ -46,9 +40,41 @@ async function verifyState(state: string): Promise<{ slug: string }> {
   return JSON.parse(decodedPayload) as { slug: string };
 }
 
+function buildWorkspaceRedirect(slug: string, query?: string): string {
+  const host = process.env.NEXT_PUBLIC_APP_HOST!;
+  const port = host === "localhost" ? ":3000" : "";
+  const scheme = host === "localhost" ? "http" : "https";
+  const base = `${scheme}://${slug}.${host}${port}/settings/integrations`;
+  return query ? `${base}?${query}` : base;
+}
+
 export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get("code");
+  const error = request.nextUrl.searchParams.get("error");
   const state = request.nextUrl.searchParams.get("state");
+
+  if (error) {
+    let stateData: { slug: string } | null = null;
+    if (state) {
+      try {
+        stateData = await verifyState(state);
+      } catch {
+        // state invalid — redirect without workspace context
+      }
+    }
+
+    const message =
+      error === "access_denied"
+        ? "error=Authorization was cancelled"
+        : "error=Authorization failed";
+
+    if (stateData) {
+      return NextResponse.redirect(buildWorkspaceRedirect(stateData.slug, message));
+    }
+
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  const code = request.nextUrl.searchParams.get("code");
   const realmId = request.nextUrl.searchParams.get("realmId");
 
   if (!code || !state || !realmId) {
@@ -176,14 +202,5 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const workspaceRedirectBase = (() => {
-    const host = process.env.NEXT_PUBLIC_APP_HOST!;
-    const port = host === "localhost" ? ":3000" : "";
-    const scheme = host === "localhost" ? "http" : "https";
-    return `${scheme}://${stateData.slug}.${host}${port}`;
-  })();
-
-  return NextResponse.redirect(
-    `${workspaceRedirectBase}/settings/integrations`,
-  );
+  return NextResponse.redirect(buildWorkspaceRedirect(stateData.slug));
 }

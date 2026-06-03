@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
-
-function buildBaseHost() {
-  const host = process.env.NEXT_PUBLIC_APP_HOST!;
-  const port = host === "localhost" ? ":3000" : "";
-  const scheme = host === "localhost" ? "http" : "https";
-  return `${scheme}://${host}${port}`;
-}
+import { buildBaseHost } from "@/lib/quickbooks";
 
 async function signState(slug: string): Promise<string> {
   const secret = process.env.BETTER_AUTH_SECRET!;
