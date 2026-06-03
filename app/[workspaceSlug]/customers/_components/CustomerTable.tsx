@@ -56,8 +56,8 @@ export function CustomerTable({ customers }: Props) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Name</TableHead>
-              <TableHead className="w-[160px]">Phone</TableHead>
-              <TableHead className="w-[240px]">Email</TableHead>
+              <TableHead className="w-40">Phone</TableHead>
+              <TableHead className="w-60">Email</TableHead>
               <TableHead className="flex justify-end">Actions</TableHead>
             </TableRow>
           </TableHeader>

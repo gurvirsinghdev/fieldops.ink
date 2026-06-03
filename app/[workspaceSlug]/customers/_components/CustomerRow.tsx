@@ -16,7 +16,7 @@ export function CustomerRow({ customer }: Props) {
       <TableCell className="py-2 text-sm text-muted-foreground tabular-nums">
         {customer.phone ?? "—"}
       </TableCell>
-      <TableCell className="py-2 text-sm text-muted-foreground truncate max-w-[220px]">
+      <TableCell className="py-2 text-sm text-muted-foreground truncate max-w-55">
         {customer.email ?? "—"}
       </TableCell>
       <TableCell className="py-2 flex items-center justify-end">
