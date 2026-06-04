@@ -13,10 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export function NewCustomerDialog() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -55,7 +53,6 @@ export function NewCustomerDialog() {
       toast.success(`Customer created${qbMsg}`);
       setOpen(false);
       form.reset();
-      router.refresh();
     } catch {
       toast.error("Something went wrong.");
     } finally {

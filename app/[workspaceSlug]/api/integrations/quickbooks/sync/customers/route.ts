@@ -6,6 +6,7 @@ import {
   createQBCustomer,
 } from "@/lib/quickbooks-api";
 import { getWorkspaceId } from "@/lib/route-guards";
+import { revalidatePath } from "next/cache";
 
 export async function POST(
   _request: NextRequest,
@@ -241,6 +242,8 @@ export async function POST(
       errors++;
     }
   }
+
+  revalidatePath(`/${workspaceSlug}/customers`);
 
   return Response.json({ imported, exported, errors });
 }

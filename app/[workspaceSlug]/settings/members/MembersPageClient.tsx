@@ -18,7 +18,6 @@ import {
   XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 interface Member {
   id: string;
@@ -55,7 +54,6 @@ export function MembersPageClient({
   currentRole,
   currentUserId,
 }: Props) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("Member");
   const [inviting, setInviting] = useState(false);
@@ -109,7 +107,6 @@ export function MembersPageClient({
       }
 
       toast.success(`Invitation to ${email} revoked`);
-      router.refresh();
     } catch {
       toast.error("Something went wrong.");
     }

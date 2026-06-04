@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import { SearchIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { Loader2Icon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -44,9 +44,19 @@ export function CustomerTable({
   qbConnected,
 }: Props) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(query);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const ownNavigation = useRef(false);
   const totalPages = Math.ceil(total / perPage);
+
+  // Sync search state from URL only on browser back/forward (not our own push)
+  useEffect(() => {
+    if (!ownNavigation.current) {
+      setSearch(query);
+    }
+    ownNavigation.current = false;
+  }, [query]);
 
   const pushParams = useCallback(
     (overrides: Record<string, string | number>) => {
@@ -60,7 +70,10 @@ export function CustomerTable({
       if (nextPerPage !== "20") params.set("perPage", nextPerPage);
 
       const qs = params.toString();
-      router.push(qs ? `?${qs}` : window.location.pathname);
+      ownNavigation.current = true;
+      startTransition(() => {
+        router.push(qs ? `?${qs}` : window.location.pathname);
+      });
     },
     [router, search, perPage],
   );
@@ -93,8 +106,11 @@ export function CustomerTable({
             value={search}
             autoFocus={!!search}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-8 h-7 text-xs"
+            className="pl-8 pr-8 h-7 text-xs"
           />
+          {isPending && (
+            <Loader2Icon className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 animate-spin text-muted-foreground" />
+          )}
         </div>
 
         {qbConnected && <SyncWithQuickBooksButton />}

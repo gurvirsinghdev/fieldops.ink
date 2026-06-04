@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getWorkspaceId } from "@/lib/route-guards";
+import { revalidatePath } from "next/cache";
 import { getValidAccessToken } from "@/lib/quickbooks";
 import { updateQBCustomer } from "@/lib/quickbooks-api";
 
@@ -96,6 +97,8 @@ export async function PATCH(
   } catch (err) {
     console.error(`Failed to update QB customer "${customer.name}":`, err);
   }
+
+  revalidatePath(`/${workspaceSlug}/customers`);
 
   return Response.json({ id: updated.id });
 }

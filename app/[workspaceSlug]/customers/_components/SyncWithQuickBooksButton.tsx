@@ -4,10 +4,8 @@ import { useState } from "react";
 import { Loader2Icon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export function SyncWithQuickBooksButton() {
-  const router = useRouter();
   const [syncing, setSyncing] = useState(false);
 
   async function handleSync() {
@@ -30,7 +28,6 @@ export function SyncWithQuickBooksButton() {
       if (data.errors) parts.push(`${data.errors} error${data.errors !== 1 ? "s" : ""}`);
 
       toast.success(`Sync complete — ${parts.join(", ")}`);
-      router.refresh();
     } catch {
       toast.error("Something went wrong.");
     } finally {

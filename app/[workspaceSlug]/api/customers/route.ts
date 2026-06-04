@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getWorkspaceId } from "@/lib/route-guards";
 import { getValidAccessToken } from "@/lib/quickbooks";
 import { createQBCustomer } from "@/lib/quickbooks-api";
+import { revalidatePath } from "next/cache";
 
 export async function GET(
   request: NextRequest,
@@ -119,6 +120,8 @@ export async function POST(
     console.error("Failed to create QB customer:", err);
     // Customer is created locally — QB sync can be retried
   }
+
+  revalidatePath(`/${workspaceSlug}/customers`);
 
   return Response.json({
     id: customer.id,

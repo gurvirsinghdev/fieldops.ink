@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getWorkspaceId } from "@/lib/route-guards";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   _request: NextRequest,
@@ -33,6 +34,8 @@ export async function DELETE(
   await prisma.invitation.delete({
     where: { id: invitationId },
   });
+
+  revalidatePath(`/${workspaceSlug}/settings/members`);
 
   return Response.json({ ok: true });
 }

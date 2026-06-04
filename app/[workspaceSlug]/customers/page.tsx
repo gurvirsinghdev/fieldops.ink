@@ -81,7 +81,6 @@ export default async function CustomersPage({ params, searchParams }: Props) {
   return (
     <div>
       <CustomerTable
-        key={`${query}-${page}-${perPage}`}
         customers={customers}
         total={total}
         page={page}

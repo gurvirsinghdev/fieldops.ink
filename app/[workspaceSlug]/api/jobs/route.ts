@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { getWorkspaceId } from "@/lib/route-guards";
+import { revalidatePath } from "next/cache";
 
 export async function POST(
   request: NextRequest,
@@ -69,6 +70,8 @@ export async function POST(
       country: (body.country as string) || null,
     },
   });
+
+  revalidatePath(`/${workspaceSlug}/jobs`);
 
   return Response.json({ id: job.id });
 }

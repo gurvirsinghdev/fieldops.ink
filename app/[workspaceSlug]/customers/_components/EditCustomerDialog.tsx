@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 interface Props {
   customer: {
@@ -29,7 +28,6 @@ interface Props {
 }
 
 export function EditCustomerDialog({ customer }: Props) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,7 +64,6 @@ export function EditCustomerDialog({ customer }: Props) {
 
       toast.success("Customer updated");
       setOpen(false);
-      router.refresh();
     } catch {
       toast.error("Something went wrong.");
     } finally {
