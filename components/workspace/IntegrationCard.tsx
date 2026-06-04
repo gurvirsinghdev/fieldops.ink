@@ -16,7 +16,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function IntegrationCard({ id, name, status, config }: Props) {
   const statusColor = STATUS_COLORS[status] ?? "bg-muted-foreground/30";
-  const companyInfo = config?.companyInfo as { companyName?: string } | undefined;
+  const companyInfo = config?.companyInfo as
+    | { companyName?: string }
+    | undefined;
 
   return (
     <div className="rounded-lg border bg-card">
@@ -29,7 +31,7 @@ export function IntegrationCard({ id, name, status, config }: Props) {
             <span className="font-medium">{name}</span>
           </div>
           {companyInfo?.companyName && (
-            <div className="text-sm text-muted-foreground mt-0.5 ml-[18px]">
+            <div className="text-sm text-muted-foreground mt-0.5 ml-4.5">
               {companyInfo.companyName}
             </div>
           )}

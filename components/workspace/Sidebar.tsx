@@ -5,6 +5,7 @@ import {
   Building2Icon,
   LayoutDashboardIcon,
   SettingsIcon,
+  WrenchIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -25,6 +26,7 @@ export default function WorkspaceSidebar({ trigger }: Props) {
   const navigationLinks = [
     { title: "Dashboard", href: "/", icon: LayoutDashboardIcon },
     { title: "Customers", href: "/customers", icon: Building2Icon },
+    { title: "Jobs", href: "/jobs", icon: WrenchIcon },
   ];
   const bottomNavigationLinks = [
     { title: "Settings", href: "/settings", icon: SettingsIcon },
