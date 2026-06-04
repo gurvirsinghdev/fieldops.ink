@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,21 @@ import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
 interface Props {
   children: React.ReactNode;
   params: Promise<{ workspaceSlug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { workspaceSlug } = await params;
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { slug: workspaceSlug },
+    select: { name: true },
+  });
+
+  const title = workspace ? `${workspace.name} — FieldOps` : "FieldOps";
+
+  return {
+    title,
+  };
 }
 
 export default async function WorkspaceLayout({ children, params }: Props) {
