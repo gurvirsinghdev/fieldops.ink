@@ -1,9 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useRef, useState } from "react";
 import { DownloadIcon, Loader2Icon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -11,33 +18,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { NativeSelect } from "@/components/ui/native-select";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { Customer } from "./mockData";
 import { CustomerRow } from "./CustomerRow";
 
+const PER_PAGE_OPTIONS = [20, 30, 50] as const;
+
 interface Props {
   customers: Customer[];
+  total: number;
+  page: number;
+  perPage: number;
+  query: string;
   qbConnected: boolean;
 }
 
-export function CustomerTable({ customers, qbConnected }: Props) {
+export function CustomerTable({
+  customers,
+  total,
+  page,
+  perPage,
+  query,
+  qbConnected,
+}: Props) {
   const router = useRouter();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(query);
   const [importing, setImporting] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const totalPages = Math.ceil(total / perPage);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return customers;
+  const pushParams = useCallback(
+    (overrides: Record<string, string | number>) => {
+      const params = new URLSearchParams();
+      const nextQuery = String(overrides.q ?? search);
+      const nextPage = String(overrides.page ?? 1);
+      const nextPerPage = String(overrides.perPage ?? perPage);
 
-    const q = search.toLowerCase();
-    return customers.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.city?.toLowerCase().includes(q) ||
-        c.email?.toLowerCase().includes(q) ||
-        c.phone?.includes(q),
-    );
-  }, [customers, search]);
+      if (nextQuery) params.set("q", nextQuery);
+      if (nextPage !== "1") params.set("page", nextPage);
+      if (nextPerPage !== "20") params.set("perPage", nextPerPage);
+
+      const qs = params.toString();
+      router.push(qs ? `?${qs}` : window.location.pathname);
+    },
+    [router, search, perPage],
+  );
+
+  const handleSearch = useCallback(
+    (value: string) => {
+      setSearch(value);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        pushParams({ q: value, page: 1 });
+      }, 300);
+    },
+    [pushParams],
+  );
+
+  const handlePerPage = useCallback(
+    (value: string) => {
+      pushParams({ perPage: Number(value), page: 1 });
+    },
+    [pushParams],
+  );
 
   async function handleImport() {
     setImporting(true);
@@ -71,7 +116,8 @@ export function CustomerTable({ customers, qbConnected }: Props) {
           <Input
             placeholder="Search customers..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            autoFocus={!!search}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-8 h-7 text-xs"
           />
         </div>
@@ -94,7 +140,7 @@ export function CustomerTable({ customers, qbConnected }: Props) {
         )}
 
         <div className="ml-auto text-xs text-muted-foreground tabular-nums">
-          {filtered.length} customer{filtered.length !== 1 ? "s" : ""}
+          {total} customer{total !== 1 ? "s" : ""}
         </div>
       </div>
 
@@ -111,7 +157,7 @@ export function CustomerTable({ customers, qbConnected }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {customers.length === 0 ? (
               <TableRow>
                 <td
                   colSpan={4}
@@ -121,13 +167,64 @@ export function CustomerTable({ customers, qbConnected }: Props) {
                 </td>
               </TableRow>
             ) : (
-              filtered.map((customer) => (
+              customers.map((customer) => (
                 <CustomerRow key={customer.id} customer={customer} />
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-[7.5] border-t">
+          <div className="flex items-center gap-2 w-full">
+            <NativeSelect
+              size="sm"
+              value={String(perPage)}
+              onChange={(e) => handlePerPage(e.target.value)}
+            >
+              {PER_PAGE_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </NativeSelect>
+            <span className="text-xs text-muted-foreground">
+              Records per page
+            </span>
+          </div>
+
+          <Pagination className="justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => pushParams({ page: page - 1 })}
+                  aria-disabled={page <= 1}
+                  tabIndex={page <= 1 ? -1 : undefined}
+                  className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                  text="Previous"
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-xs text-muted-foreground tabular-nums px-2">
+                  Page {page} of {totalPages}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => pushParams({ page: page + 1 })}
+                  aria-disabled={page >= totalPages}
+                  tabIndex={page >= totalPages ? -1 : undefined}
+                  className={
+                    page >= totalPages ? "pointer-events-none opacity-50" : ""
+                  }
+                  text="Next"
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }

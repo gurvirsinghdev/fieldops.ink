@@ -4,9 +4,12 @@ import { CustomerTable } from "./_components/CustomerTable";
 
 interface Props {
   params: Promise<{ workspaceSlug: string }>;
+  searchParams: Promise<{ q?: string; page?: string; perPage?: string }>;
 }
 
-export default async function CustomersPage({ params }: Props) {
+const VALID_PER_PAGE = [20, 30, 50] as const;
+
+export default async function CustomersPage({ params, searchParams }: Props) {
   const { workspaceSlug } = await params;
   const session = await getServerSession();
 
@@ -26,9 +29,29 @@ export default async function CustomersPage({ params }: Props) {
     return <div>Not a member</div>;
   }
 
-  const [customers, qbIntegration] = await Promise.all([
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const perPage = VALID_PER_PAGE.includes(Number(sp.perPage) as typeof VALID_PER_PAGE[number])
+    ? (Number(sp.perPage) as typeof VALID_PER_PAGE[number])
+    : 20;
+  const query = sp.q || "";
+
+  const where = {
+    workspaceId: membership.workspaceId,
+    ...(query
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" as const } },
+            { email: { contains: query, mode: "insensitive" as const } },
+            { phone: { contains: query } },
+          ],
+        }
+      : {}),
+  };
+
+  const [customers, total, qbIntegration] = await Promise.all([
     prisma.customer.findMany({
-      where: { workspaceId: membership.workspaceId },
+      where,
       select: {
         id: true,
         name: true,
@@ -38,8 +61,11 @@ export default async function CustomersPage({ params }: Props) {
         province: true,
         country: true,
       },
+      skip: (page - 1) * perPage,
+      take: perPage,
       orderBy: { name: "asc" },
     }),
+    prisma.customer.count({ where }),
     prisma.integration.findFirst({
       where: {
         workspaceId: membership.workspaceId,
@@ -53,7 +79,12 @@ export default async function CustomersPage({ params }: Props) {
   return (
     <div>
       <CustomerTable
+        key={`${query}-${page}-${perPage}`}
         customers={customers}
+        total={total}
+        page={page}
+        perPage={perPage}
+        query={query}
         qbConnected={!!qbIntegration}
       />
     </div>
