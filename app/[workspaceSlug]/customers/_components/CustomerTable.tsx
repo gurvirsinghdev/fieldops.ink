@@ -21,7 +21,8 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { useRouter } from "next/navigation";
 import type { Customer } from "./mockData";
 import { CustomerRow } from "./CustomerRow";
-import { ImportFromQuickBooksButton } from "./ImportFromQuickBooksButton";
+import { SyncWithQuickBooksButton } from "./SyncWithQuickBooksButton";
+import { NewCustomerDialog } from "./NewCustomerDialog";
 
 const PER_PAGE_OPTIONS = [20, 30, 50] as const;
 
@@ -96,7 +97,8 @@ export function CustomerTable({
           />
         </div>
 
-        {qbConnected && <ImportFromQuickBooksButton />}
+        {qbConnected && <SyncWithQuickBooksButton />}
+        <NewCustomerDialog />
 
         <div className="ml-auto text-xs text-muted-foreground tabular-nums">
           {total} customer{total !== 1 ? "s" : ""}

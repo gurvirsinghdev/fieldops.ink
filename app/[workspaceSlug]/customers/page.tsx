@@ -63,7 +63,7 @@ export default async function CustomersPage({ params, searchParams }: Props) {
       },
       skip: (page - 1) * perPage,
       take: perPage,
-      orderBy: { name: "asc" },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.customer.count({ where }),
     prisma.integration.findFirst({
