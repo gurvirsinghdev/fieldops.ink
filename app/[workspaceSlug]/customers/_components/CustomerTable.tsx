@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { DownloadIcon, Loader2Icon, SearchIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -19,10 +18,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { NativeSelect } from "@/components/ui/native-select";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { Customer } from "./mockData";
 import { CustomerRow } from "./CustomerRow";
+import { ImportFromQuickBooksButton } from "./ImportFromQuickBooksButton";
 
 const PER_PAGE_OPTIONS = [20, 30, 50] as const;
 
@@ -45,7 +44,6 @@ export function CustomerTable({
 }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState(query);
-  const [importing, setImporting] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
   const totalPages = Math.ceil(total / perPage);
 
@@ -84,30 +82,6 @@ export function CustomerTable({
     [pushParams],
   );
 
-  async function handleImport() {
-    setImporting(true);
-    try {
-      const res = await fetch("/api/integrations/quickbooks/import/customers", {
-        method: "POST",
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error ?? "Import failed");
-        return;
-      }
-
-      toast.success(
-        `Imported ${data.imported} customer${data.imported !== 1 ? "s" : ""} from QuickBooks`,
-      );
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
-    } finally {
-      setImporting(false);
-    }
-  }
-
   return (
     <div className="flex flex-col h-full bg-card">
       <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
@@ -122,22 +96,7 @@ export function CustomerTable({
           />
         </div>
 
-        {qbConnected && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleImport}
-            disabled={importing}
-            className="cursor-pointer"
-          >
-            {importing ? (
-              <Loader2Icon className="size-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <DownloadIcon className="size-3.5 mr-1.5" />
-            )}
-            Import from QuickBooks
-          </Button>
-        )}
+        {qbConnected && <ImportFromQuickBooksButton />}
 
         <div className="ml-auto text-xs text-muted-foreground tabular-nums">
           {total} customer{total !== 1 ? "s" : ""}

@@ -65,11 +65,9 @@ export default async function IntegrationsPage() {
 
       try {
         const accessToken = await getValidAccessToken(integration.id);
-        const env = process.env.QUICKBOOKS_ENVIRONMENT ?? "sandbox";
         const companyInfo = await fetchCompanyInfo(
           accessToken,
           realmId,
-          env,
         );
 
         const updated = await prisma.integration.update({

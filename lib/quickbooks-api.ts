@@ -24,17 +24,20 @@ export interface ImportedCustomer {
   country: string | null;
 }
 
-export async function fetchCompanyInfo(
+function baseUrl(environment: string): string {
+  return environment === "production"
+    ? "https://quickbooks.api.intuit.com"
+    : "https://sandbox-quickbooks.api.intuit.com";
+}
+
+async function qbFetch<T>(
   accessToken: string,
   realmId: string,
-  environment: string = "sandbox",
-): Promise<QBCompanyInfo> {
-  const baseUrl =
-    environment === "production"
-      ? "https://quickbooks.api.intuit.com"
-      : "https://sandbox-quickbooks.api.intuit.com";
-
-  const url = `${baseUrl}/v3/company/${realmId}/companyinfo/${realmId}`;
+  path: string,
+  label: string,
+): Promise<T> {
+  const env = process.env.QUICKBOOKS_ENVIRONMENT ?? "sandbox";
+  const url = `${baseUrl(env)}/v3/company/${realmId}/${path}`;
 
   const response = await fetch(url, {
     headers: {
@@ -44,26 +47,42 @@ export async function fetchCompanyInfo(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `QuickBooks CompanyInfo fetch failed (${response.status})`,
-    );
+    throw new Error(`${label} failed (${response.status})`);
   }
 
-  const data = await response.json();
+  return response.json();
+}
+
+export async function fetchCompanyInfo(
+  accessToken: string,
+  realmId: string,
+): Promise<QBCompanyInfo> {
+  const data = await qbFetch<{ CompanyInfo: Record<string, unknown> }>(
+    accessToken,
+    realmId,
+    `companyinfo/${realmId}`,
+    "QuickBooks CompanyInfo fetch",
+  );
   const company = data.CompanyInfo;
 
   return {
-    companyName: company.CompanyName ?? null,
-    legalName: company.LegalName ?? null,
-    email: company.CompanyEmailAddr?.Address ?? null,
-    phone: company.PrimaryPhone?.FreeFormNumber ?? null,
+    companyName: (company.CompanyName as string) ?? null,
+    legalName: (company.LegalName as string) ?? null,
+    email:
+      ((company.CompanyEmailAddr as Record<string, unknown>)?.Address as string) ?? null,
+    phone:
+      ((company.PrimaryPhone as Record<string, unknown>)?.FreeFormNumber as string) ?? null,
     address: company.PrimaryAddr
       ? {
-          line1: company.PrimaryAddr.Line1 ?? null,
-          city: company.PrimaryAddr.City ?? null,
+          line1:
+            ((company.PrimaryAddr as Record<string, unknown>).Line1 as string) ?? null,
+          city:
+            ((company.PrimaryAddr as Record<string, unknown>).City as string) ?? null,
           province:
-            company.PrimaryAddr.CountrySubDivisionCode ?? null,
-          postalCode: company.PrimaryAddr.PostalCode ?? null,
+            ((company.PrimaryAddr as Record<string, unknown>)
+              .CountrySubDivisionCode as string) ?? null,
+          postalCode:
+            ((company.PrimaryAddr as Record<string, unknown>).PostalCode as string) ?? null,
         }
       : null,
   };
@@ -72,30 +91,17 @@ export async function fetchCompanyInfo(
 export async function importCustomers(
   accessToken: string,
   realmId: string,
-  environment: string = "sandbox",
 ): Promise<ImportedCustomer[]> {
-  const baseUrl =
-    environment === "production"
-      ? "https://quickbooks.api.intuit.com"
-      : "https://sandbox-quickbooks.api.intuit.com";
-
   const query = "select * from Customer";
-  const url = `${baseUrl}/v3/company/${realmId}/query?query=${encodeURIComponent(query)}`;
+  const data = await qbFetch<{
+    QueryResponse: { Customer?: Record<string, unknown>[] };
+  }>(
+    accessToken,
+    realmId,
+    `query?query=${encodeURIComponent(query)}`,
+    "QuickBooks Customer query",
+  );
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `QuickBooks Customer query failed (${response.status})`,
-    );
-  }
-
-  const data = await response.json();
   const entities = data.QueryResponse?.Customer ?? [];
 
   return entities.map((c: Record<string, unknown>) => {

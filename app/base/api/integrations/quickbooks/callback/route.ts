@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { encrypt } from "@/lib/encryption";
-import { buildBaseHost } from "@/lib/quickbooks";
+import { completeQuickBooksAuth } from "@/lib/quickbooks";
 import { fetchCompanyInfo } from "@/lib/quickbooks-api";
 
 async function verifyState(state: string): Promise<{ slug: string }> {
@@ -69,7 +68,9 @@ export async function GET(request: NextRequest) {
         : "error=Authorization failed";
 
     if (stateData) {
-      return NextResponse.redirect(buildWorkspaceRedirect(stateData.slug, message));
+      return NextResponse.redirect(
+        buildWorkspaceRedirect(stateData.slug, message),
+      );
     }
 
     return NextResponse.json({ error: message }, { status: 400 });
@@ -92,129 +93,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid state" }, { status: 400 });
   }
 
-  const clientId = process.env.QUICKBOOKS_CLIENT_ID;
-  const clientSecret = process.env.QUICKBOOKS_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    return NextResponse.json(
-      { error: "QuickBooks is not configured" },
-      { status: 500 },
-    );
-  }
-
-  const redirectUri = `${buildBaseHost()}/api/integrations/quickbooks/callback`;
-
-  let tokenResponse: Response;
+  let result: { integrationId: string; accessToken: string };
   try {
-    tokenResponse = await fetch(
-      "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization:
-            "Basic " +
-            Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
-        },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri,
-        }),
-      },
-    );
-  } catch {
+    result = await completeQuickBooksAuth(code, realmId, stateData.slug);
+  } catch (err) {
+    console.error("QuickBooks auth failed:", err);
     return NextResponse.json(
-      { error: "Failed to exchange code for tokens" },
+      { error: `QuickBooks authorization failed: ${(err as Error).message}` },
       { status: 502 },
     );
-  }
-
-  if (!tokenResponse.ok) {
-    console.error(
-      "QuickBooks token exchange failed:",
-      await tokenResponse.text(),
-    );
-    return NextResponse.json(
-      { error: "QuickBooks token exchange failed" },
-      { status: 502 },
-    );
-  }
-
-  const tokenData = await tokenResponse.json();
-  const accessToken: string = tokenData.access_token;
-  const refreshToken: string = tokenData.refresh_token;
-  const expiresIn: number = tokenData.expires_in;
-
-  if (!accessToken || !refreshToken) {
-    return NextResponse.json(
-      { error: "Invalid token response from QuickBooks" },
-      { status: 502 },
-    );
-  }
-
-  const workspace = await prisma.workspace.findUnique({
-    where: { slug: stateData.slug },
-    select: { id: true },
-  });
-
-  if (!workspace) {
-    return NextResponse.json(
-      { error: "Workspace not found" },
-      { status: 404 },
-    );
-  }
-
-  const [encryptedAccess, encryptedRefresh] = await Promise.all([
-    encrypt(accessToken),
-    encrypt(refreshToken),
-  ]);
-
-  const existing = await prisma.integration.findFirst({
-    where: {
-      workspaceId: workspace.id,
-      provider: "quickbooks",
-      externalAccountId: realmId,
-    },
-    select: { id: true },
-  });
-
-  let integrationId: string;
-
-  if (existing) {
-    integrationId = existing.id;
-    await prisma.integration.update({
-      where: { id: existing.id },
-      data: {
-        status: "Connected",
-        accessTokenEncrypted: encryptedAccess,
-        refreshTokenEncrypted: encryptedRefresh,
-        tokenExpiresAt: new Date(Date.now() + expiresIn * 1000),
-      },
-    });
-  } else {
-    const created = await prisma.integration.create({
-      data: {
-        workspaceId: workspace.id,
-        provider: "quickbooks",
-        name: "QuickBooks",
-        status: "Connected",
-        externalAccountId: realmId,
-        accessTokenEncrypted: encryptedAccess,
-        refreshTokenEncrypted: encryptedRefresh,
-        tokenExpiresAt: new Date(Date.now() + expiresIn * 1000),
-      },
-      select: { id: true },
-    });
-    integrationId = created.id;
   }
 
   // Fetch and store QuickBooks company info
   try {
-    const env = process.env.QUICKBOOKS_ENVIRONMENT ?? "sandbox";
-    const companyInfo = await fetchCompanyInfo(accessToken, realmId, env);
+    const companyInfo = await fetchCompanyInfo(result.accessToken, realmId);
 
     await prisma.integration.update({
-      where: { id: integrationId },
+      where: { id: result.integrationId },
       data: {
         externalName: companyInfo.companyName,
         config: JSON.parse(JSON.stringify({ companyInfo })),
@@ -222,7 +117,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (err) {
     console.error("Failed to fetch QuickBooks company info:", err);
-    // Don't fail the whole flow — company info can be backfilled later
   }
 
   return NextResponse.redirect(buildWorkspaceRedirect(stateData.slug));

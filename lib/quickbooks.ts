@@ -143,3 +143,96 @@ export async function revokeQuickBooksToken(
     // Token may already be expired or revoked — proceed with local cleanup
   }
 }
+
+export async function completeQuickBooksAuth(
+  code: string,
+  realmId: string,
+  workspaceSlug: string,
+): Promise<{ integrationId: string; accessToken: string }> {
+  getClientCredentials(); // validates credentials are configured
+
+  const redirectUri = `${buildBaseHost()}/api/integrations/quickbooks/callback`;
+
+  const tokenResponse = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: basicAuthHeader(),
+    },
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+    }),
+  });
+
+  if (!tokenResponse.ok) {
+    throw new Error(
+      `QuickBooks token exchange failed (${tokenResponse.status})`,
+    );
+  }
+
+  const tokenData = await tokenResponse.json();
+  const accessToken: string = tokenData.access_token;
+  const refreshToken: string = tokenData.refresh_token;
+  const expiresIn: number = tokenData.expires_in;
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Invalid token response from QuickBooks");
+  }
+
+  const workspace = await prisma.workspace.findUnique({
+    where: { slug: workspaceSlug },
+    select: { id: true },
+  });
+
+  if (!workspace) {
+    throw new Error("Workspace not found");
+  }
+
+  const [encryptedAccess, encryptedRefresh] = await Promise.all([
+    encrypt(accessToken),
+    encrypt(refreshToken),
+  ]);
+
+  const existing = await prisma.integration.findFirst({
+    where: {
+      workspaceId: workspace.id,
+      provider: "quickbooks",
+      externalAccountId: realmId,
+    },
+    select: { id: true },
+  });
+
+  let integrationId: string;
+
+  if (existing) {
+    integrationId = existing.id;
+    await prisma.integration.update({
+      where: { id: existing.id },
+      data: {
+        status: "Connected",
+        accessTokenEncrypted: encryptedAccess,
+        refreshTokenEncrypted: encryptedRefresh,
+        tokenExpiresAt: new Date(Date.now() + expiresIn * 1000),
+      },
+    });
+  } else {
+    const created = await prisma.integration.create({
+      data: {
+        workspaceId: workspace.id,
+        provider: "quickbooks",
+        name: "QuickBooks",
+        status: "Connected",
+        externalAccountId: realmId,
+        accessTokenEncrypted: encryptedAccess,
+        refreshTokenEncrypted: encryptedRefresh,
+        tokenExpiresAt: new Date(Date.now() + expiresIn * 1000),
+      },
+      select: { id: true },
+    });
+    integrationId = created.id;
+  }
+
+  return { integrationId, accessToken };
+}

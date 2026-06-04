@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
 import { buildBaseHost } from "@/lib/quickbooks";
+import { getWorkspaceId } from "@/lib/route-guards";
 
 async function signState(slug: string): Promise<string> {
   const secret = process.env.BETTER_AUTH_SECRET!;
@@ -30,22 +29,8 @@ export async function GET(
 ) {
   const { workspaceSlug } = await params;
 
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const membership = await prisma.workspaceMember.findFirst({
-    where: {
-      userId: session.user.id,
-      workspace: { slug: workspaceSlug },
-    },
-    select: { workspaceId: true },
-  });
-
-  if (!membership) {
-    return NextResponse.json({ error: "Not a member" }, { status: 403 });
-  }
+  const workspaceResult = await getWorkspaceId(workspaceSlug);
+  if (typeof workspaceResult !== "string") return workspaceResult;
 
   const clientId = process.env.QUICKBOOKS_CLIENT_ID;
   if (!clientId) {
