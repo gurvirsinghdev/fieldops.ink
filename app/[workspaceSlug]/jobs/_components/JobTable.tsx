@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import type { JobRow } from "./types";
 import { JobRow as JobRowComponent } from "./JobRow";
 import { JOB_STATUSES, STATUS_LABEL } from "./types";
+import { NewJobDialog } from "./NewJobDialog";
 
 const PER_PAGE_OPTIONS = [20, 30, 50] as const;
 
@@ -106,6 +107,8 @@ export function JobTable({
           />
         </div>
 
+        <NewJobDialog />
+
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Status:</span>
           <ToggleGroup
@@ -134,11 +137,9 @@ export function JobTable({
             <TableRow className="hover:bg-transparent">
               <TableHead>Title</TableHead>
               <TableHead className="w-40">Customer</TableHead>
-              <TableHead className="w-32">Status</TableHead>
-              <TableHead className="w-32">Scheduled</TableHead>
-              <TableHead className="flex justify-end items-center">
-                Actions
-              </TableHead>
+              <TableHead className="w-32">Location</TableHead>
+              <TableHead className="w-28">Status</TableHead>
+              <TableHead className="w-28">Scheduled</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

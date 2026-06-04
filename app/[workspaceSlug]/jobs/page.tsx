@@ -74,6 +74,11 @@ export default async function JobsPage({ params, searchParams }: Props) {
         scheduledAt: true,
         startedAt: true,
         completedAt: true,
+        addressLine1: true,
+        city: true,
+        province: true,
+        postalCode: true,
+        country: true,
         customer: {
           select: { id: true, name: true },
         },

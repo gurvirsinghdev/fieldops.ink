@@ -8,6 +8,11 @@ export type JobRow = {
   scheduledAt: Date | null;
   startedAt: Date | null;
   completedAt: Date | null;
+  addressLine1: string | null;
+  city: string | null;
+  province: string | null;
+  postalCode: string | null;
+  country: string | null;
   customer: {
     id: string;
     name: string;

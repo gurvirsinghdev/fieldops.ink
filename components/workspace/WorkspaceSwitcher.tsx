@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
+import { buildWorkspaceRoute } from "@/lib/utils";
 
 type Props = {
   trigger: ReactNode;
@@ -27,6 +28,9 @@ export function WorkspaceSwitcher({ trigger }: Props) {
           <DropdownMenuItem
             key={workspace.slug}
             className="cursor-pointer focus:bg-muted focus:color-background! focus:stroke-background!"
+            onClick={() => {
+              window.location.href = buildWorkspaceRoute(workspace.slug);
+            }}
           >
             <WorkspaceAvatar
               size="sm"

@@ -4,6 +4,36 @@ import { getWorkspaceId } from "@/lib/route-guards";
 import { getValidAccessToken } from "@/lib/quickbooks";
 import { createQBCustomer } from "@/lib/quickbooks-api";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ workspaceSlug: string }> },
+) {
+  const { workspaceSlug } = await params;
+
+  const workspaceResult = await getWorkspaceId(workspaceSlug);
+  if (typeof workspaceResult !== "string") return workspaceResult;
+  const workspaceId = workspaceResult;
+
+  const q = request.nextUrl.searchParams.get("q") || "";
+
+  const customers = await prisma.customer.findMany({
+    where: {
+      workspaceId,
+      ...(q
+        ? { name: { contains: q, mode: "insensitive" as const } }
+        : {}),
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    take: 20,
+    orderBy: { name: "asc" as const },
+  });
+
+  return Response.json(customers);
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ workspaceSlug: string }> },
