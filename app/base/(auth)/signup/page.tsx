@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +41,8 @@ type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams?.get("invite") ?? null;
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignUpValues>({
@@ -58,6 +61,8 @@ export default function SignUp() {
 
     if (error) {
       toast.error(error.message);
+    } else if (inviteToken) {
+      router.push(buildBaseRoute(`/invite/${inviteToken}`));
     } else {
       toast.success("Account created!");
       router.push(buildBaseRoute("/my-workspace"));
@@ -70,7 +75,9 @@ export default function SignUp() {
         <CardHeader>
           <CardTitle>Create Account</CardTitle>
           <CardDescription>
-            Please create you account to access your workspace.
+            {inviteToken
+              ? "Create your account to accept the workspace invitation."
+              : "Please create your account to access your workspace."}
           </CardDescription>
         </CardHeader>
 

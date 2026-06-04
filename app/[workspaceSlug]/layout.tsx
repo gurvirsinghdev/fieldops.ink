@@ -57,7 +57,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
     await prisma.workspace.findMany({
       where: {
         members: {
-          every: {
+          some: {
             userId: user.id,
           },
         },

@@ -7,6 +7,7 @@ import {
   PlugZapIcon,
   SettingsIcon,
   UserIcon,
+  UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,6 +22,11 @@ const links = [
     title: "Workspace",
     href: "/settings/workspace",
     icon: Building2Icon,
+  },
+  {
+    title: "Members",
+    href: "/settings/members",
+    icon: UsersIcon,
   },
   {
     title: "Security",

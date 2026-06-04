@@ -1,7 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import type { Customer } from "./mockData";
 import { CustomerCell } from "./CustomerCell";
+import { EditCustomerDialog } from "./EditCustomerDialog";
 
 interface Props {
   customer: Customer;
@@ -20,9 +20,7 @@ export function CustomerRow({ customer }: Props) {
         {customer.email ?? "—"}
       </TableCell>
       <TableCell className="py-2 flex items-center justify-end">
-        <Button variant="ghost" size="sm">
-          View
-        </Button>
+        <EditCustomerDialog customer={customer} />
       </TableCell>
     </TableRow>
   );
