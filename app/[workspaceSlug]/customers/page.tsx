@@ -1,7 +1,6 @@
 import { getServerSession } from "@/lib/auth.actions";
 import prisma from "@/lib/prisma";
 import { CustomerTable } from "./_components/CustomerTable";
-import { mockCustomers } from "./_components/mockData";
 
 interface Props {
   params: Promise<{ workspaceSlug: string }>;
@@ -23,20 +22,40 @@ export default async function CustomersPage({ params }: Props) {
     select: { workspaceId: true },
   });
 
-  const qbConnected = membership
-    ? !!(await prisma.integration.findFirst({
-        where: {
-          workspaceId: membership.workspaceId,
-          provider: "quickbooks",
-          status: "Connected",
-        },
-        select: { id: true },
-      }))
-    : false;
+  if (!membership) {
+    return <div>Not a member</div>;
+  }
+
+  const [customers, qbIntegration] = await Promise.all([
+    prisma.customer.findMany({
+      where: { workspaceId: membership.workspaceId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        city: true,
+        province: true,
+        country: true,
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.integration.findFirst({
+      where: {
+        workspaceId: membership.workspaceId,
+        provider: "quickbooks",
+        status: "Connected",
+      },
+      select: { id: true },
+    }),
+  ]);
 
   return (
     <div>
-      <CustomerTable customers={mockCustomers} qbConnected={qbConnected} />
+      <CustomerTable
+        customers={customers}
+        qbConnected={!!qbIntegration}
+      />
     </div>
   );
 }

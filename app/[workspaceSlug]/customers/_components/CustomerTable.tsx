@@ -42,10 +42,9 @@ export function CustomerTable({ customers, qbConnected }: Props) {
   async function handleImport() {
     setImporting(true);
     try {
-      const res = await fetch(
-        "/api/integrations/quickbooks/import/customers",
-        { method: "POST" },
-      );
+      const res = await fetch("/api/integrations/quickbooks/import/customers", {
+        method: "POST",
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -53,7 +52,9 @@ export function CustomerTable({ customers, qbConnected }: Props) {
         return;
       }
 
-      toast.success(`Imported ${data.imported} customer${data.imported !== 1 ? "s" : ""} from QuickBooks`);
+      toast.success(
+        `Imported ${data.imported} customer${data.imported !== 1 ? "s" : ""} from QuickBooks`,
+      );
       router.refresh();
     } catch {
       toast.error("Something went wrong.");
@@ -63,24 +64,25 @@ export function CustomerTable({ customers, qbConnected }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-card">
       <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative flex-1 max-w-xs bg-card! rounded-lg border border-border">
           <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
           <Input
             placeholder="Search customers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 h-8 text-xs"
+            className="pl-8 h-7 text-xs"
           />
         </div>
 
         {qbConnected && (
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={handleImport}
             disabled={importing}
+            className="cursor-pointer"
           >
             {importing ? (
               <Loader2Icon className="size-3.5 mr-1.5 animate-spin" />
@@ -96,14 +98,16 @@ export function CustomerTable({ customers, qbConnected }: Props) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto p-4">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Name</TableHead>
               <TableHead className="w-40">Phone</TableHead>
               <TableHead className="w-60">Email</TableHead>
-              <TableHead className="w-20">Actions</TableHead>
+              <TableHead className="flex justify-end items-center">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
