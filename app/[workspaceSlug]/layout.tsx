@@ -16,6 +16,7 @@ import { buildBaseRoute } from "@/lib/utils";
 import { ChevronsUpDownIcon, SettingsIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
+import { ThemeProvider } from "next-themes";
 
 interface Props {
   children: React.ReactNode;
@@ -70,62 +71,64 @@ export default async function WorkspaceLayout({ children, params }: Props) {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden">
-        <StoreHydrator
-          currentWorkspace={membership.workspace}
-          workspaces={workspaces}
-          user={{
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          }}
-        />
+    <ThemeProvider enableSystem={true} attribute="class" defaultTheme="system">
+      <SidebarProvider>
+        <div className="flex h-screen w-full overflow-hidden">
+          <StoreHydrator
+            currentWorkspace={membership.workspace}
+            workspaces={workspaces}
+            user={{
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+            }}
+          />
 
-        <WorkspaceSidebar
-          trigger={
-            <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted group-data-[collapsible=icon]:p-[10.5]! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent">
-              <WorkspaceAvatar
-                size="sm"
-                className="rounded-lg shrink-0"
-                workspace={membership.workspace}
-              />
-              <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm">
-                  {membership.workspace.name}&nbsp;
-                </span>
-                <span className="truncate capitalize text-xs text-muted-foreground">
-                  {membership.workspace.plan.toLowerCase()}&nbsp;
-                </span>
+          <WorkspaceSidebar
+            trigger={
+              <div className="flex items-center justify-between rounded-lg p-2 gap-2 bg-muted group-data-[collapsible=icon]:p-[10.5]! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-transparent">
+                <WorkspaceAvatar
+                  size="sm"
+                  className="rounded-lg shrink-0"
+                  workspace={membership.workspace}
+                />
+                <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate text-sm">
+                    {membership.workspace.name}&nbsp;
+                  </span>
+                  <span className="truncate capitalize text-xs text-muted-foreground">
+                    {membership.workspace.plan.toLowerCase()}&nbsp;
+                  </span>
+                </div>
+                <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
               </div>
-              <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground shrink-0 group-data-[collapsible=icon]:hidden" />
-            </div>
-          }
-        />
+            }
+          />
 
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
-            <Breadcrumbs />
+          <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+            <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
+              <Breadcrumbs />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger className="cursor-pointer">
-                <UserAvatar />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem className="focus:bg-muted">
-                  <a href={"/settings"} className="flex gap-2 items-center">
-                    <SettingsIcon />
-                    <span>Settings</span>
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </header>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="cursor-pointer">
+                  <UserAvatar />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem className="focus:bg-muted">
+                    <a href={"/settings"} className="flex gap-2 items-center">
+                      <SettingsIcon />
+                      <span>Settings</span>
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </header>
 
-          <main className="flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 overflow-y-auto">{children}</main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }
