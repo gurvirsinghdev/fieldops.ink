@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { completeQuickBooksAuth } from "@/lib/quickbooks";
-import { fetchCompanyInfo } from "@/lib/quickbooks-api";
+import prisma from "@/lib/db/prisma";
+import { completeQuickBooksAuth } from "@/lib/integrations/quickbooks/auth";
+import { fetchCompanyInfo } from "@/lib/integrations/quickbooks/api";
 
 async function verifyState(state: string): Promise<{ slug: string }> {
   const secret = process.env.BETTER_AUTH_SECRET!;

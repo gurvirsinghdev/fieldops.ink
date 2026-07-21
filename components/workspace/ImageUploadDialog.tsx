@@ -11,16 +11,28 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useWorkspaceStore } from "@/stores/workspace-store";
 import { LoaderIcon, UploadIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  uploadEndpoint: string;
+  onSuccess: (data: unknown) => void;
+  imageShapeClass?: string;
 };
 
-export function ChangeWorkspaceImageDialog({ open, onOpenChange }: Props) {
+export function ImageUploadDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  uploadEndpoint,
+  onSuccess,
+  imageShapeClass = "rounded-full",
+}: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -72,20 +84,18 @@ export function ChangeWorkspaceImageDialog({ open, onOpenChange }: Props) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/workspace/image", {
+      const res = await fetch(uploadEndpoint, {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? "Upload failed");
+        const errData = await res.json();
+        throw new Error(errData.error ?? "Upload failed");
       }
 
-      const { workspace: updated } = await res.json();
-      useWorkspaceStore
-        .getState()
-        .updateWorkspace(updated.name, updated.slug, updated.image);
+      const data = await res.json();
+      onSuccess(data);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -105,11 +115,8 @@ export function ChangeWorkspaceImageDialog({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Change workspace image</DialogTitle>
-          <DialogDescription>
-            Choose an image from your device. Supported formats: PNG, JPEG,
-            WebP, GIF. Max 2MB.
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4">
@@ -121,7 +128,7 @@ export function ChangeWorkspaceImageDialog({ open, onOpenChange }: Props) {
                 width={128}
                 height={128}
                 unoptimized
-                className="h-32 w-32 rounded-lg object-cover ring-1 ring-border"
+                className={`h-32 w-32 ${imageShapeClass} object-cover ring-1 ring-border`}
               />
               <Button
                 variant="ghost"
@@ -134,7 +141,7 @@ export function ChangeWorkspaceImageDialog({ open, onOpenChange }: Props) {
               </Button>
             </div>
           ) : (
-            <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-muted ring-1 ring-border">
+            <div className={`flex h-32 w-32 items-center justify-center ${imageShapeClass} bg-muted ring-1 ring-border`}>
               <span className="text-4xl text-muted-foreground select-none">
                 ?
               </span>

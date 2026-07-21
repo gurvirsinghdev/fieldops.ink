@@ -1,7 +1,8 @@
 import { Prisma } from "@/generated/client";
-import prisma from "@/lib/prisma";
-import { getWorkspaceId } from "@/lib/route-guards";
-import { JobTable } from "./_components/JobTable";
+import prisma from "@/lib/db/prisma";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
+import { JOB_STATUSES } from "@/lib/constants";
+import { JobTable } from "@/components/jobs/JobTable";
 
 interface Props {
   params: Promise<{ workspaceSlug: string }>;
@@ -14,13 +15,6 @@ interface Props {
 }
 
 const VALID_PER_PAGE = [20, 30, 50] as const;
-const VALID_STATUSES = [
-  "Scheduled",
-  "InProgress",
-  "Delivered",
-  "Completed",
-  "Cancelled",
-] as const;
 
 export default async function JobsPage({ params, searchParams }: Props) {
   const { workspaceSlug } = await params;
@@ -40,9 +34,7 @@ export default async function JobsPage({ params, searchParams }: Props) {
     : 20;
   const query = sp.q || "";
   const rawStatus = sp.status ?? "";
-  const statusFilter = VALID_STATUSES.includes(
-    rawStatus as (typeof VALID_STATUSES)[number],
-  )
+  const statusFilter = (JOB_STATUSES as readonly string[]).includes(rawStatus)
     ? rawStatus
     : "";
 

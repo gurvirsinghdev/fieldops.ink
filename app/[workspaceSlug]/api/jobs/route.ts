@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
-import { getWorkspaceId } from "@/lib/route-guards";
+import prisma from "@/lib/db/prisma";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
+import { JOB_STATUSES } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
 
 export async function POST(
@@ -45,7 +46,7 @@ export async function POST(
     return Response.json({ error: "City is required" }, { status: 400 });
   }
 
-  const status = ["Scheduled", "InProgress", "Delivered", "Completed", "Cancelled"].includes(
+  const status = (JOB_STATUSES as readonly string[]).includes(
     body.status as string,
   )
     ? (body.status as string)
@@ -61,7 +62,7 @@ export async function POST(
       customerId,
       title: title.trim(),
       description: (body.description as string) || null,
-      status: status as "Scheduled" | "InProgress" | "Delivered" | "Completed" | "Cancelled",
+      status: status as (typeof JOB_STATUSES)[number],
       scheduledAt,
       addressLine1: (body.addressLine1 as string) || null,
       city: (body.city as string) || null,

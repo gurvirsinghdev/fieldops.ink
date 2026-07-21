@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
-import { revokeQuickBooksToken } from "@/lib/quickbooks";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
+import { revokeQuickBooksToken } from "@/lib/integrations/quickbooks/auth";
 
 export async function PATCH(
   _request: NextRequest,

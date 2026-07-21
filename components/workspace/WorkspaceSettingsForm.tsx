@@ -14,7 +14,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn, buildWorkspaceRoute } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { buildWorkspaceRoute } from "@/lib/urls";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {

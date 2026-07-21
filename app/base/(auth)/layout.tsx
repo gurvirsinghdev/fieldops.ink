@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { getServerSession } from "@/lib/auth.actions";
+import { getServerSession } from "@/lib/auth/helpers";
 import { redirect } from "next/navigation";
-import { buildBaseRoute } from "@/lib/utils";
+import { buildBaseRoute } from "@/lib/urls";
 
 interface Props {
   children: React.ReactNode;

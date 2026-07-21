@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, SaveIcon } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { useUserStore } from "@/stores/user-store";
 import { toast } from "sonner";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { Loader2Icon, SearchIcon } from "lucide-react";
+import { useCallback } from "react";
+import { SearchIcon, Loader2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/table";
 import { NativeSelect } from "@/components/ui/native-select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useRouter } from "next/navigation";
+import { useTableNavigation } from "@/hooks/use-table-navigation";
 import type { JobRow } from "./types";
 import { JobRow as JobRowComponent } from "./JobRow";
-import { JOB_STATUSES, STATUS_LABEL } from "./types";
+import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
 import { NewJobDialog } from "./NewJobDialog";
 
 const PER_PAGE_OPTIONS = [20, 30, 50] as const;
@@ -44,59 +44,10 @@ export function JobTable({
   query,
   status,
 }: Props) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(query);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
-  const ownNavigation = useRef(false);
+  const { search, isPending, handleSearch, handlePerPage, pushParams } =
+    useTableNavigation(query, perPage);
+
   const totalPages = Math.ceil(total / perPage);
-
-  useEffect(() => {
-    if (!ownNavigation.current) {
-      setSearch(query);
-    }
-    ownNavigation.current = false;
-  }, [query]);
-
-  const pushParams = useCallback(
-    (overrides: Record<string, string | number>) => {
-      const params = new URLSearchParams();
-      const nextQuery = String(overrides.q ?? search);
-      const nextStatus = String(overrides.status ?? status);
-      const nextPage = String(overrides.page ?? 1);
-      const nextPerPage = String(overrides.perPage ?? perPage);
-
-      if (nextQuery) params.set("q", nextQuery);
-      if (nextStatus && nextStatus !== "all") params.set("status", nextStatus);
-      if (nextPage !== "1") params.set("page", nextPage);
-      if (nextPerPage !== "20") params.set("perPage", nextPerPage);
-
-      const qs = params.toString();
-      ownNavigation.current = true;
-      startTransition(() => {
-        router.push(qs ? `?${qs}` : window.location.pathname);
-      });
-    },
-    [router, search, status, perPage],
-  );
-
-  const handleSearch = useCallback(
-    (value: string) => {
-      setSearch(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        pushParams({ q: value, page: 1 });
-      }, 300);
-    },
-    [pushParams],
-  );
-
-  const handlePerPage = useCallback(
-    (value: string) => {
-      pushParams({ perPage: Number(value), page: 1 });
-    },
-    [pushParams],
-  );
 
   const handleStatus = useCallback(
     (value: string) => {

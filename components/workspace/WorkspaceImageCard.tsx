@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
-import { ChangeWorkspaceImageDialog } from "@/components/workspace/ChangeWorkspaceImageDialog";
+import { ImageUploadDialog } from "@/components/workspace/ImageUploadDialog";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { ImageIcon } from "lucide-react";
 
 export function WorkspaceImageCard() {
@@ -34,9 +35,17 @@ export function WorkspaceImageCard() {
         </CardContent>
       </Card>
 
-      <ChangeWorkspaceImageDialog
+      <ImageUploadDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        title="Change workspace image"
+        description="Choose an image from your device. Supported formats: PNG, JPEG, WebP, GIF. Max 2MB."
+        uploadEndpoint="/api/workspace/image"
+        imageShapeClass="rounded-lg"
+        onSuccess={(data) => {
+          const updated = (data as { workspace: { name: string; slug: string; image?: string | null } }).workspace;
+          useWorkspaceStore.getState().updateWorkspace(updated.name, updated.slug, updated.image);
+        }}
       />
     </>
   );

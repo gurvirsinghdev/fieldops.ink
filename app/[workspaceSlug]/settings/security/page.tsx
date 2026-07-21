@@ -40,6 +40,7 @@ export default async function SecurityPage() {
           </div>
         </CardContent>
       </Card>
+      {/* TODO: Wire up form submission with better-auth password change API */}
     </section>
   );
 }

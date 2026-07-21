@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/workspace/UserAvatar";
-import { ChangeImageDialog } from "@/components/workspace/ChangeImageDialog";
+import { ImageUploadDialog } from "@/components/workspace/ImageUploadDialog";
+import { useUserStore } from "@/stores/user-store";
 import { ImageIcon } from "lucide-react";
 
 export function ProfileImageCard() {
@@ -34,7 +35,17 @@ export function ProfileImageCard() {
         </CardContent>
       </Card>
 
-      <ChangeImageDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <ImageUploadDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Change profile image"
+        description="Choose an image from your device. Supported formats: PNG, JPEG, WebP, GIF. Max 2MB."
+        uploadEndpoint="/api/profile/image"
+        imageShapeClass="rounded-full"
+        onSuccess={(data) => {
+          useUserStore.getState().hydrate(data as { id: string; name: string; email: string; image?: string | null });
+        }}
+      />
     </>
   );
 }

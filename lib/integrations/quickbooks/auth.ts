@@ -1,7 +1,7 @@
 import "server-only";
 
-import prisma from "@/lib/prisma";
-import { decrypt, encrypt } from "@/lib/encryption";
+import prisma from "@/lib/db/prisma";
+import { decrypt, encrypt } from "./encryption";
 
 export function buildBaseHost() {
   const host = process.env.NEXT_PUBLIC_APP_HOST!;

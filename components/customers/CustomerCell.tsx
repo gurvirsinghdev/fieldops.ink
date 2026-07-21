@@ -1,4 +1,4 @@
-import type { Customer } from "./mockData";
+import type { Customer } from "./types";
 
 interface Props {
   customer: Customer;

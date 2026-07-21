@@ -1,6 +1,6 @@
-import { getServerSession } from "@/lib/auth.actions";
-import { uploadProfileImage } from "@/lib/cloudinary";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth/helpers";
+import { uploadProfileImage } from "@/lib/integrations/cloudinary";
+import prisma from "@/lib/db/prisma";
 
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB

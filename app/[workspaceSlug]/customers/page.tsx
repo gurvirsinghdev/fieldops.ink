@@ -1,6 +1,6 @@
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
-import { CustomerTable } from "./_components/CustomerTable";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
+import { CustomerTable } from "@/components/customers/CustomerTable";
 
 interface Props {
   params: Promise<{ workspaceSlug: string }>;

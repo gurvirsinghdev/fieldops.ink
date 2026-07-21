@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/table";
 import { ProfileForm } from "@/components/workspace/ProfileForm";
 import { ProfileImageCard } from "@/components/workspace/ProfileImageCard";
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
 import Link from "next/link";
 
 export default async function ProfilePage() {

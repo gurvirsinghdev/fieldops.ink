@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDownIcon, Loader2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useCustomerSearch } from "@/lib/queries";
+import { useCustomerSearch } from "@/lib/hooks/use-customer-search";
 
 interface CustomerOption {
   id: string;

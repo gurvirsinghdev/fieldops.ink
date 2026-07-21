@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
-import { getWorkspaceId } from "@/lib/route-guards";
-import { getValidAccessToken } from "@/lib/quickbooks";
-import { createQBCustomer } from "@/lib/quickbooks-api";
+import prisma from "@/lib/db/prisma";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
+import { getValidAccessToken } from "@/lib/integrations/quickbooks/auth";
+import { createQBCustomer } from "@/lib/integrations/quickbooks/api";
 import { revalidatePath } from "next/cache";
 
 export async function GET(

@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { IntegrationCard } from "@/components/workspace/IntegrationCard";
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
-import { getValidAccessToken } from "@/lib/quickbooks";
-import { fetchCompanyInfo } from "@/lib/quickbooks-api";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
+import { getValidAccessToken } from "@/lib/integrations/quickbooks/auth";
+import { fetchCompanyInfo } from "@/lib/integrations/quickbooks/api";
 import { ArrowRightIcon, PlugZapIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";

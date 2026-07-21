@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SLUG_MIN_LENGTH = 3;

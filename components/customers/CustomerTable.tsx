@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { Loader2Icon, SearchIcon } from "lucide-react";
+import { SearchIcon, Loader2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -18,8 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { NativeSelect } from "@/components/ui/native-select";
-import { useRouter } from "next/navigation";
-import type { Customer } from "./mockData";
+import { useTableNavigation } from "@/hooks/use-table-navigation";
+import type { Customer } from "./types";
 import { CustomerRow } from "./CustomerRow";
 import { SyncWithQuickBooksButton } from "./SyncWithQuickBooksButton";
 import { NewCustomerDialog } from "./NewCustomerDialog";
@@ -43,58 +42,10 @@ export function CustomerTable({
   query,
   qbConnected,
 }: Props) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(query);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
-  const ownNavigation = useRef(false);
+  const { search, isPending, handleSearch, handlePerPage, pushParams } =
+    useTableNavigation(query, perPage);
+
   const totalPages = Math.ceil(total / perPage);
-
-  // Sync search state from URL only on browser back/forward (not our own push)
-  useEffect(() => {
-    if (!ownNavigation.current) {
-      setSearch(query);
-    }
-    ownNavigation.current = false;
-  }, [query]);
-
-  const pushParams = useCallback(
-    (overrides: Record<string, string | number>) => {
-      const params = new URLSearchParams();
-      const nextQuery = String(overrides.q ?? search);
-      const nextPage = String(overrides.page ?? 1);
-      const nextPerPage = String(overrides.perPage ?? perPage);
-
-      if (nextQuery) params.set("q", nextQuery);
-      if (nextPage !== "1") params.set("page", nextPage);
-      if (nextPerPage !== "20") params.set("perPage", nextPerPage);
-
-      const qs = params.toString();
-      ownNavigation.current = true;
-      startTransition(() => {
-        router.push(qs ? `?${qs}` : window.location.pathname);
-      });
-    },
-    [router, search, perPage],
-  );
-
-  const handleSearch = useCallback(
-    (value: string) => {
-      setSearch(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        pushParams({ q: value, page: 1 });
-      }, 300);
-    },
-    [pushParams],
-  );
-
-  const handlePerPage = useCallback(
-    (value: string) => {
-      pushParams({ perPage: Number(value), page: 1 });
-    },
-    [pushParams],
-  );
 
   return (
     <div className="flex flex-col h-full bg-card">

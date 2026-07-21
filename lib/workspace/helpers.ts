@@ -1,7 +1,7 @@
 import "server-only";
 
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
 
 export async function getWorkspaceId(
   workspaceSlug: string,

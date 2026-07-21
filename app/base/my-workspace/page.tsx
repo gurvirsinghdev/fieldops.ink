@@ -1,6 +1,6 @@
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
-import { buildBaseRoute, buildWorkspaceRoute } from "@/lib/utils";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
+import { buildBaseRoute, buildWorkspaceRoute } from "@/lib/urls";
 import { redirect } from "next/navigation";
 
 export default async function MyWorkspace() {

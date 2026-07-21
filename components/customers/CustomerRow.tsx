@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import type { Customer } from "./mockData";
+import type { Customer } from "./types";
 import { CustomerCell } from "./CustomerCell";
 import { EditCustomerDialog } from "./EditCustomerDialog";
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildBaseHost } from "@/lib/quickbooks";
-import { getWorkspaceId } from "@/lib/route-guards";
+import { buildBaseHost } from "@/lib/integrations/quickbooks/auth";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
 
 async function signState(slug: string): Promise<string> {
   const secret = process.env.BETTER_AUTH_SECRET!;

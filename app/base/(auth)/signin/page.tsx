@@ -19,12 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { buildBaseRoute } from "@/lib/utils";
+import { buildBaseRoute } from "@/lib/urls";
 
-const signUpSchema = z.object({
+const signInSchema = z.object({
   email: z.email({
     error: "Please enter a valid email address.",
   }),
@@ -33,21 +33,21 @@ const signUpSchema = z.object({
   }),
 });
 
-type SignUpValues = z.infer<typeof signUpSchema>;
+type SignInValues = z.infer<typeof signInSchema>;
 
-export default function SignUp() {
+export default function SignIn() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const signUpHandler = async (data: SignUpValues) => {
+  const signInHandler = async (data: SignInValues) => {
     setIsLoading(true);
     const { error } = await authClient.signIn.email({
       ...data,
@@ -76,7 +76,7 @@ export default function SignUp() {
         <CardContent>
           <form
             className="space-y-4"
-            onSubmit={form.handleSubmit(signUpHandler)}
+            onSubmit={form.handleSubmit(signInHandler)}
           >
             <Field data-invalid={!!form.formState.errors.email}>
               <Label htmlFor="email">Email</Label>

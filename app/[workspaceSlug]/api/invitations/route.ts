@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
-import { buildBaseRoute } from "@/lib/utils";
-import { getServerSession } from "@/lib/auth.actions";
-import { sendEmail } from "@/lib/email";
-import { getWorkspaceId } from "@/lib/route-guards";
+import prisma from "@/lib/db/prisma";
+import { buildBaseRoute } from "@/lib/urls";
+import { getServerSession } from "@/lib/auth/helpers";
+import { sendEmail } from "@/lib/integrations/email";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
 
 export async function POST(
   request: NextRequest,

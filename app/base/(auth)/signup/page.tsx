@@ -20,10 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { buildBaseRoute } from "@/lib/utils";
+import { buildBaseRoute } from "@/lib/urls";
 
 const signUpSchema = z.object({
   name: z.string().min(3, {

@@ -1,5 +1,5 @@
-import { getServerSession } from "@/lib/auth.actions";
-import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth/helpers";
+import prisma from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import { MembersPageClient } from "./MembersPageClient";
 

@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
-import { getWorkspaceId } from "@/lib/route-guards";
+import prisma from "@/lib/db/prisma";
+import { getWorkspaceId } from "@/lib/workspace/helpers";
 import { revalidatePath } from "next/cache";
-import { getValidAccessToken } from "@/lib/quickbooks";
-import { updateQBCustomer } from "@/lib/quickbooks-api";
+import { getValidAccessToken } from "@/lib/integrations/quickbooks/auth";
+import { updateQBCustomer } from "@/lib/integrations/quickbooks/api";
 
 export async function PATCH(
   request: NextRequest,

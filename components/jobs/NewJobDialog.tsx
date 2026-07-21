@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { toast } from "sonner";
 import { CustomerSelect } from "./CustomerSelect";
+import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
 
 export function NewJobDialog() {
   const [open, setOpen] = useState(false);
@@ -102,13 +103,13 @@ export function NewJobDialog() {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">Status</Label>
               <NativeSelect name="status" defaultValue="Scheduled">
-                <option value="Scheduled">Scheduled</option>
-                <option value="InProgress">Active</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Completed">Complete</option>
-                <option value="Cancelled">Cancelled</option>
+                {JOB_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </option>
+                ))}
               </NativeSelect>
             </div>
             <div className="space-y-1.5">

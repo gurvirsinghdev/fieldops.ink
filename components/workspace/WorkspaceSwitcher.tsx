@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { WorkspaceAvatar } from "@/components/workspace/WorkspaceAvatar";
-import { buildWorkspaceRoute } from "@/lib/utils";
+import { buildWorkspaceRoute } from "@/lib/urls";
 
 type Props = {
   trigger: ReactNode;
