@@ -4,6 +4,7 @@ import { buildBaseRoute } from "@/lib/urls";
 import { getServerSession } from "@/lib/auth/helpers";
 import { sendEmail } from "@/lib/integrations/email";
 import { getWorkspaceId } from "@/lib/workspace/helpers";
+import { revalidatePath } from "next/cache";
 
 export async function POST(
   request: NextRequest,
@@ -124,6 +125,8 @@ export async function POST(
       "This invitation expires in 7 days.",
     ].join("\n\n"),
   });
+
+  revalidatePath(`/${workspaceSlug}/settings/members`);
 
   return Response.json({ link: inviteLink, emailSent });
 }

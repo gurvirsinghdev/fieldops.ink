@@ -12,9 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export function NewCustomerDialog() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,6 +55,8 @@ export function NewCustomerDialog() {
 
       const qbMsg = result.qbId ? " and in QuickBooks" : "";
       toast.success(`Customer created${qbMsg}`);
+      router.refresh();
+      queryClient.invalidateQueries({ queryKey: ["customers", "search"] });
       setOpen(false);
       form.reset();
     } catch {

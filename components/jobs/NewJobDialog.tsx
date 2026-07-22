@@ -13,11 +13,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CustomerSelect } from "./CustomerSelect";
 import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
 
 export function NewJobDialog() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState("");
@@ -68,6 +70,7 @@ export function NewJobDialog() {
       }
 
       toast.success("Job created");
+      router.refresh();
       setOpen(false);
       resetForm(form);
     } catch {

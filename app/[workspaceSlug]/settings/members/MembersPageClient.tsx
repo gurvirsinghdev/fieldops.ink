@@ -10,6 +10,7 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import {
   CopyIcon,
   Loader2Icon,
@@ -54,6 +55,7 @@ export function MembersPageClient({
   currentRole,
   currentUserId,
 }: Props) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("Member");
   const [inviting, setInviting] = useState(false);
@@ -80,6 +82,7 @@ export function MembersPageClient({
 
       setInviteLink(data.link);
       toast.success("Invitation created");
+      router.refresh();
       setEmail("");
     } catch {
       toast.error("Something went wrong.");
@@ -107,6 +110,7 @@ export function MembersPageClient({
       }
 
       toast.success(`Invitation to ${email} revoked`);
+      router.refresh();
     } catch {
       toast.error("Something went wrong.");
     }

@@ -188,7 +188,7 @@ export function WorkspaceSettingsForm({ workspace }: Props) {
       }
 
       const { workspace: updated } = await res.json();
-      useWorkspaceStore.getState().updateWorkspace(updated.name, updated.slug);
+      useWorkspaceStore.getState().updateWorkspace(updated.name, updated.slug, updated.image);
 
       if (slugChanged) {
         toast.success("Workspace updated! Redirecting...");

@@ -86,7 +86,7 @@ export async function PATCH(request: NextRequest) {
       ...(name !== undefined && { name: name.trim() }),
       ...(slug !== undefined && { slug }),
     },
-    select: { name: true, slug: true, plan: true },
+    select: { name: true, slug: true, plan: true, image: true },
   });
 
   return Response.json({ workspace: updated });
