@@ -55,8 +55,6 @@ type Props = {
 
 export function WorkspaceSettingsForm({ workspace }: Props) {
   const router = useRouter();
-  const originalSlug = workspace.slug;
-  const originalName = workspace.name;
 
   const [isLoading, setIsLoading] = useState(false);
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
@@ -69,17 +67,17 @@ export function WorkspaceSettingsForm({ workspace }: Props) {
 
   const form = useForm<WorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
-    defaultValues: {
-      name: originalName,
-      slug: originalSlug,
+    values: {
+      name: workspace.name,
+      slug: workspace.slug,
     },
   });
 
   const currentSlug = form.watch("slug");
   const currentName = form.watch("name");
 
-  const slugChanged = currentSlug !== originalSlug;
-  const nameChanged = currentName !== originalName;
+  const slugChanged = currentSlug !== workspace.slug;
+  const nameChanged = currentName !== workspace.name;
 
   useEffect(() => {
     if (!slugChanged || !currentSlug) {
