@@ -2,19 +2,26 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import type { Customer } from "./types";
 import { CustomerCell } from "./CustomerCell";
 import { EditCustomerDialog } from "./EditCustomerDialog";
+import parsePhoneNumber from "libphonenumber-js";
 
 interface Props {
   customer: Customer;
 }
 
 export function CustomerRow({ customer }: Props) {
+  const formattedPhoneNumber = customer.phone
+    ? parsePhoneNumber(customer.phone)
+    : null;
+
   return (
     <TableRow>
       <TableCell className="py-2">
         <CustomerCell customer={customer} />
       </TableCell>
       <TableCell className="py-2 text-sm text-muted-foreground tabular-nums">
-        {customer.phone ?? "—"}
+        {formattedPhoneNumber
+          ? formattedPhoneNumber.formatInternational()
+          : customer.phone}
       </TableCell>
       <TableCell className="py-2 text-sm text-muted-foreground truncate max-w-55">
         {customer.email ?? "—"}

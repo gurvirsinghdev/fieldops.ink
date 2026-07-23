@@ -24,6 +24,7 @@ import type { JobRow } from "./types";
 import { JobRow as JobRowComponent } from "./JobRow";
 import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
 import { NewJobDialog } from "./NewJobDialog";
+import Link from "next/link";
 
 const PER_PAGE_OPTIONS = [20, 30, 50] as const;
 
@@ -36,14 +37,7 @@ interface Props {
   status: string;
 }
 
-export function JobTable({
-  jobs,
-  total,
-  page,
-  perPage,
-  query,
-  status,
-}: Props) {
+export function JobTable({ jobs, total, page, perPage, query, status }: Props) {
   const { search, isPending, handleSearch, handlePerPage, pushParams } =
     useTableNavigation(query, perPage);
 

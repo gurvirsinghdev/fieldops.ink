@@ -1,6 +1,9 @@
+"use client";
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import type { JobRow } from "./types";
 import { StatusBadge } from "./StatusBadge";
+import { useRouter } from "next/navigation";
 
 interface Props {
   job: JobRow;
@@ -21,8 +24,12 @@ function locationLabel(job: JobRow): string {
 }
 
 export function JobRow({ job }: Props) {
+  const router = useRouter();
   return (
-    <TableRow>
+    <TableRow
+      style={{ cursor: "pointer" }}
+      onClick={() => router.push(`/jobs/${job.id}`)}
+    >
       <TableCell className="py-2">
         <div className="text-sm font-medium truncate max-w-[280px]">
           {job.title}
