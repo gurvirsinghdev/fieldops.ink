@@ -43,7 +43,16 @@ export function ProfileImageCard() {
         uploadEndpoint="/api/profile/image"
         imageShapeClass="rounded-full"
         onSuccess={(data) => {
-          useUserStore.getState().hydrate(data as { id: string; name: string; email: string; image?: string | null });
+          useUserStore
+            .getState()
+            .hydrate(
+              data as {
+                id: string;
+                name: string;
+                email: string;
+                image?: string | null;
+              },
+            );
         }}
       />
     </>

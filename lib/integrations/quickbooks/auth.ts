@@ -24,7 +24,9 @@ function getClientCredentials(): { clientId: string; clientSecret: string } {
 
 function basicAuthHeader(): string {
   const { clientId, clientSecret } = getClientCredentials();
-  return "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+  return (
+    "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+  );
 }
 
 export async function getValidAccessToken(

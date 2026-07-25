@@ -14,11 +14,7 @@ async function signState(slug: string): Promise<string> {
   );
 
   const payload = JSON.stringify({ slug });
-  const sig = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    enc.encode(payload),
-  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
 
   return `${Buffer.from(payload).toString("base64url")}.${Buffer.from(sig).toString("base64url")}`;
 }

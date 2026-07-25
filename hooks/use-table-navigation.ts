@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export function useTableNavigation(initialQuery: string, initialPerPage: number) {
+export function useTableNavigation(
+  initialQuery: string,
+  initialPerPage: number,
+) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(initialQuery);

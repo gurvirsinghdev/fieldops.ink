@@ -70,20 +70,25 @@ export async function fetchCompanyInfo(
     companyName: (company.CompanyName as string) ?? null,
     legalName: (company.LegalName as string) ?? null,
     email:
-      ((company.CompanyEmailAddr as Record<string, unknown>)?.Address as string) ?? null,
+      ((company.CompanyEmailAddr as Record<string, unknown>)
+        ?.Address as string) ?? null,
     phone:
-      ((company.PrimaryPhone as Record<string, unknown>)?.FreeFormNumber as string) ?? null,
+      ((company.PrimaryPhone as Record<string, unknown>)
+        ?.FreeFormNumber as string) ?? null,
     address: company.PrimaryAddr
       ? {
           line1:
-            ((company.PrimaryAddr as Record<string, unknown>).Line1 as string) ?? null,
+            ((company.PrimaryAddr as Record<string, unknown>)
+              .Line1 as string) ?? null,
           city:
-            ((company.PrimaryAddr as Record<string, unknown>).City as string) ?? null,
+            ((company.PrimaryAddr as Record<string, unknown>).City as string) ??
+            null,
           province:
             ((company.PrimaryAddr as Record<string, unknown>)
               .CountrySubDivisionCode as string) ?? null,
           postalCode:
-            ((company.PrimaryAddr as Record<string, unknown>).PostalCode as string) ?? null,
+            ((company.PrimaryAddr as Record<string, unknown>)
+              .PostalCode as string) ?? null,
         }
       : null,
   };

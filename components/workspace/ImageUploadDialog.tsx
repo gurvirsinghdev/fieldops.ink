@@ -141,7 +141,9 @@ export function ImageUploadDialog({
               </Button>
             </div>
           ) : (
-            <div className={`flex h-32 w-32 items-center justify-center ${imageShapeClass} bg-muted ring-1 ring-border`}>
+            <div
+              className={`flex h-32 w-32 items-center justify-center ${imageShapeClass} bg-muted ring-1 ring-border`}
+            >
               <span className="text-4xl text-muted-foreground select-none">
                 ?
               </span>

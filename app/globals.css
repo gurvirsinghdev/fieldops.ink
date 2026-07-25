@@ -4,5 +4,5 @@
 @import "./tweakcn.css";
 
 .container {
-    @apply mx-auto;
+  @apply mx-auto;
 }

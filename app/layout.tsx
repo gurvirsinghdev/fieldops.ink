@@ -4,7 +4,6 @@ import { Antic, Noto_Sans_Georgian, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "@/components/providers/Providers";
 
 const mono = JetBrains_Mono();
 const serif = Noto_Sans_Georgian();
@@ -33,7 +32,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        {children}
         <Toaster
           toastOptions={{
             classNames: {

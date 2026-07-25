@@ -31,10 +31,7 @@ export async function POST(request: Request) {
   }
 
   if (file.size > MAX_SIZE) {
-    return Response.json(
-      { error: "File must be under 2MB." },
-      { status: 400 },
-    );
+    return Response.json({ error: "File must be under 2MB." }, { status: 400 });
   }
 
   const membership = await prisma.workspaceMember.findFirst({
@@ -43,7 +40,10 @@ export async function POST(request: Request) {
   });
 
   if (!membership) {
-    return Response.json({ error: "Not a member of this workspace" }, { status: 403 });
+    return Response.json(
+      { error: "Not a member of this workspace" },
+      { status: 403 },
+    );
   }
 
   try {

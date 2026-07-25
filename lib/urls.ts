@@ -1,17 +1,17 @@
-export function buildBaseRoute(path: string) {
+function getRouteEssentials() {
   const appHost = process.env.NEXT_PUBLIC_APP_HOST!;
   const appPort = appHost === "localhost" ? ":3000" : "";
   const scheme = appHost === "localhost" ? "http" : "https";
 
-  const url = `${scheme}://${appHost}${appPort}${path}`;
-  return url;
+  return { appHost, appPort, scheme };
 }
 
-export function buildWorkspaceRoute(workspaceSlug: string) {
-  const appHost = process.env.NEXT_PUBLIC_APP_HOST!;
-  const appPort = appHost === "localhost" ? ":3000" : "";
-  const scheme = appHost === "localhost" ? "http" : "https";
+export function buildBaseRoute(path: string) {
+  const { appHost, appPort, scheme } = getRouteEssentials();
+  return `${scheme}://${appHost}${appPort}${path}`;
+}
 
-  const url = `${scheme}://${workspaceSlug}.${appHost}${appPort}/`;
-  return url;
+export function buildWorkspaceRoute(workspaceSlug: string, path: string = "/") {
+  const { appHost, appPort, scheme } = getRouteEssentials();
+  return `${scheme}://${workspaceSlug}.${appHost}${appPort}${path}`;
 }

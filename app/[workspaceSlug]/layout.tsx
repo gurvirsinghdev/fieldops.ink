@@ -10,6 +10,7 @@ import Breadcrumbs from "@/components/workspace/Breadcrumbs";
 import WorkspaceSidebar from "@/components/workspace/Sidebar";
 import { UserAvatar } from "@/components/workspace/UserAvatar";
 import { StoreHydrator } from "@/components/providers/StoreHydrator";
+import { WorkspaceProviders } from "@/components/providers/WorkspaceProviders";
 import { getServerSession } from "@/lib/auth/helpers";
 import prisma from "@/lib/db/prisma";
 import { buildBaseRoute } from "@/lib/urls";
@@ -72,44 +73,46 @@ export default async function WorkspaceLayout({ children, params }: Props) {
 
   return (
     <ThemeProvider enableSystem={true} attribute="class" defaultTheme="system">
-      <SidebarProvider>
-        <div className="flex h-screen w-full overflow-hidden">
-          <StoreHydrator
-            currentWorkspace={membership.workspace}
-            workspaces={workspaces}
-            user={{
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              image: user.image,
-            }}
-          />
+      <WorkspaceProviders>
+        <SidebarProvider>
+          <div className="flex h-screen w-full overflow-hidden">
+            <StoreHydrator
+              currentWorkspace={membership.workspace}
+              workspaces={workspaces}
+              user={{
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                image: user.image,
+              }}
+            />
 
-          <WorkspaceSidebar trigger={<SidebarTrigger />} />
+            <WorkspaceSidebar trigger={<SidebarTrigger />} />
 
-          <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-            <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
-              <Breadcrumbs />
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+              <header className="bg-muted/40 h-18 flex items-center justify-between px-4 border-b shrink-0">
+                <Breadcrumbs />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer">
-                  <UserAvatar />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem className="focus:bg-muted">
-                    <a href={"/settings"} className="flex gap-2 items-center">
-                      <SettingsIcon />
-                      <span>Settings</span>
-                    </a>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </header>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="cursor-pointer">
+                    <UserAvatar />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem className="focus:bg-muted">
+                      <a href={"/settings"} className="flex gap-2 items-center">
+                        <SettingsIcon />
+                        <span>Settings</span>
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </header>
 
-            <main className="flex-1 overflow-y-auto">{children}</main>
+              <main className="flex-1 overflow-y-auto">{children}</main>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
+      </WorkspaceProviders>
     </ThemeProvider>
   );
 }

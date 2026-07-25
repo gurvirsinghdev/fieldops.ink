@@ -65,10 +65,7 @@ export default async function IntegrationsPage() {
 
       try {
         const accessToken = await getValidAccessToken(integration.id);
-        const companyInfo = await fetchCompanyInfo(
-          accessToken,
-          realmId,
-        );
+        const companyInfo = await fetchCompanyInfo(accessToken, realmId);
 
         const updated = await prisma.integration.update({
           where: { id: integration.id },

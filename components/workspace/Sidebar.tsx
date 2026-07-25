@@ -2,9 +2,11 @@
 
 import { ReactNode } from "react";
 import {
-  Building2Icon,
+  ClipboardListIcon,
   LayoutDashboardIcon,
+  PackageIcon,
   SettingsIcon,
+  UsersIcon,
   WrenchIcon,
 } from "lucide-react";
 import {
@@ -25,8 +27,9 @@ type Props = {
 export default function WorkspaceSidebar({ trigger }: Props) {
   const navigationLinks = [
     { title: "Dashboard", href: "/", icon: LayoutDashboardIcon },
-    { title: "Customers", href: "/customers", icon: Building2Icon },
-    { title: "Jobs", href: "/jobs", icon: WrenchIcon },
+    { title: "Customers", href: "/customers", icon: UsersIcon },
+    { title: "Jobs", href: "/jobs", icon: ClipboardListIcon },
+    { title: "Inventory", href: "/inventory", icon: PackageIcon },
   ];
   const bottomNavigationLinks = [
     { title: "Settings", href: "/settings", icon: SettingsIcon },

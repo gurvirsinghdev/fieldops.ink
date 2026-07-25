@@ -1,172 +1,142 @@
 "use client";
 
-import { useCallback } from "react";
-import { SearchIcon, Loader2Icon } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { useTRPC } from "@/lib/trpc/react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { NativeSelect } from "@/components/ui/native-select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useTableNavigation } from "@/hooks/use-table-navigation";
-import type { JobRow } from "./types";
-import { JobRow as JobRowComponent } from "./JobRow";
-import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
-import { NewJobDialog } from "./NewJobDialog";
-import Link from "next/link";
+import { JobTableSkeleton } from "./JobTableSkeleton";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PackagePlusIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { STATUS_LABEL } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
 
-const PER_PAGE_OPTIONS = [20, 30, 50] as const;
+const PER_PAGE = 25;
 
-interface Props {
-  jobs: JobRow[];
-  total: number;
-  page: number;
-  perPage: number;
-  query: string;
-  status: string;
-}
+export function JobTable() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get("page")) || 1;
+  const search = searchParams.get("search") ?? "";
+  const [page, setPage] = useState(currentPage);
+  const trpc = useTRPC();
 
-export function JobTable({ jobs, total, page, perPage, query, status }: Props) {
-  const { search, isPending, handleSearch, handlePerPage, pushParams } =
-    useTableNavigation(query, perPage);
-
-  const totalPages = Math.ceil(total / perPage);
-
-  const handleStatus = useCallback(
-    (value: string) => {
-      pushParams({ status: value || "all", page: 1 });
-    },
-    [pushParams],
+  const { data, isLoading, isError, error } = useQuery(
+    trpc.job.list.queryOptions({
+      page,
+      perPage: PER_PAGE,
+      q: search || undefined,
+    }),
   );
 
+  function handlePageChange(newPage: number) {
+    setPage(newPage);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(newPage));
+    router.push(`?${params.toString()}`);
+  }
+
+  if (isLoading) return <JobTableSkeleton />;
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <PackagePlusIcon className="mb-2 size-8 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">
+          {error?.message ?? "Failed to load jobs."}
+        </p>
+      </div>
+    );
+  }
+
+  const { jobs, total } = data ?? { jobs: [], total: 0 };
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+  if (jobs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <PackagePlusIcon className="mb-2 size-8 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">
+          {search ? "No jobs match your search." : "No jobs yet."}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full bg-card">
-      <div className="flex items-center gap-3 px-4 py-3 border-b bg-background">
-        <div className="relative flex-1 max-w-xs bg-card! rounded-lg border border-border">
-          <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-          <Input
-            placeholder="Search jobs..."
-            value={search}
-            autoFocus={!!search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-8 pr-8 h-7 text-xs"
-          />
-          {isPending && (
-            <Loader2Icon className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 animate-spin text-muted-foreground" />
-          )}
-        </div>
-
-        <NewJobDialog />
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Status:</span>
-          <ToggleGroup
-            type="single"
-            value={status || "all"}
-            onValueChange={handleStatus}
-            size="sm"
-          >
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-            {JOB_STATUSES.map((s) => (
-              <ToggleGroupItem key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
-
-        <div className="ml-auto text-xs text-muted-foreground tabular-nums">
-          {total} job{total !== 1 ? "s" : ""}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-auto p-4">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Title</TableHead>
-              <TableHead className="w-40">Customer</TableHead>
-              <TableHead className="w-32">Location</TableHead>
-              <TableHead className="w-28">Status</TableHead>
-              <TableHead className="w-28">Scheduled</TableHead>
+    <div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Customer</TableHead>
+            <TableHead>City</TableHead>
+            <TableHead>Scheduled</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.map((job) => (
+            <TableRow key={job.id}>
+              <TableCell className="font-medium">{job.title}</TableCell>
+              <TableCell>
+                <Badge variant="outline">
+                  {STATUS_LABEL[job.status as keyof typeof STATUS_LABEL] ??
+                    job.status}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {job.customer?.name ?? "—"}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {job.city ?? "—"}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {job.scheduledAt
+                  ? new Date(job.scheduledAt).toLocaleDateString()
+                  : "—"}
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jobs.length === 0 ? (
-              <TableRow>
-                <td
-                  colSpan={5}
-                  className="py-12 text-center text-sm text-muted-foreground"
-                >
-                  No jobs found
-                </td>
-              </TableRow>
-            ) : (
-              jobs.map((job) => <JobRowComponent key={job.id} job={job} />)
-            )}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-[7.5] border-t">
-          <div className="flex items-center gap-2 w-full">
-            <NativeSelect
+        <div className="flex items-center justify-between border-t px-4 py-3">
+          <p className="text-xs text-muted-foreground">
+            Page {page} of {totalPages} ({total} total)
+          </p>
+          <div className="flex gap-1">
+            <Button
+              variant="outline"
               size="sm"
-              value={String(perPage)}
-              onChange={(e) => handlePerPage(e.target.value)}
+              disabled={page <= 1}
+              onClick={() => handlePageChange(page - 1)}
+              className="cursor-pointer"
             >
-              {PER_PAGE_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </NativeSelect>
-            <span className="text-xs text-muted-foreground">
-              Records per page
-            </span>
+              <ChevronLeftIcon className="size-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => handlePageChange(page + 1)}
+              className="cursor-pointer"
+            >
+              <ChevronRightIcon className="size-3.5" />
+            </Button>
           </div>
-
-          <Pagination className="justify-end">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => pushParams({ page: page - 1 })}
-                  aria-disabled={page <= 1}
-                  tabIndex={page <= 1 ? -1 : undefined}
-                  className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-                  text="Previous"
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <span className="text-xs text-muted-foreground tabular-nums px-2">
-                  Page {page} of {totalPages}
-                </span>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => pushParams({ page: page + 1 })}
-                  aria-disabled={page >= totalPages}
-                  tabIndex={page >= totalPages ? -1 : undefined}
-                  className={
-                    page >= totalPages ? "pointer-events-none opacity-50" : ""
-                  }
-                  text="Next"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </div>
       )}
     </div>

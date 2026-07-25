@@ -60,10 +60,7 @@ export default function Breadcrumbs() {
 
           if (crumb.isCurrent) return [item];
 
-          return [
-            item,
-            <BreadcrumbSeparator key={`sep-${crumb.href}`} />,
-          ];
+          return [item, <BreadcrumbSeparator key={`sep-${crumb.href}`} />];
         })}
       </BreadcrumbList>
     </Breadcrumb>

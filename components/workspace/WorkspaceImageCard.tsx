@@ -43,8 +43,14 @@ export function WorkspaceImageCard() {
         uploadEndpoint="/api/workspace/image"
         imageShapeClass="rounded-lg"
         onSuccess={(data) => {
-          const updated = (data as { workspace: { name: string; slug: string; image?: string | null } }).workspace;
-          useWorkspaceStore.getState().updateWorkspace(updated.name, updated.slug, updated.image);
+          const updated = (
+            data as {
+              workspace: { name: string; slug: string; image?: string | null };
+            }
+          ).workspace;
+          useWorkspaceStore
+            .getState()
+            .updateWorkspace(updated.name, updated.slug, updated.image);
         }}
       />
     </>

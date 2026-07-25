@@ -75,9 +75,7 @@ export default async function InviteAcceptPage({ params }: Props) {
   }
 
   if (!user) {
-    return redirect(
-      buildBaseRoute(`/signup?invite=${token}`),
-    );
+    return redirect(buildBaseRoute(`/signup?invite=${token}`));
   }
 
   if (user.email?.toLowerCase() !== invitation.email.toLowerCase()) {
@@ -139,7 +137,9 @@ export default async function InviteAcceptPage({ params }: Props) {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center space-y-3 max-w-sm">
-        <h1 className="text-lg font-semibold">Welcome to {invitation.workspace.name}</h1>
+        <h1 className="text-lg font-semibold">
+          Welcome to {invitation.workspace.name}
+        </h1>
         <p className="text-sm text-muted-foreground">
           You have been added as {invitation.role.toLowerCase()}.
         </p>

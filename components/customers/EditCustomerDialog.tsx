@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTRPC } from "@/lib/trpc/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   customer: {
@@ -32,6 +34,27 @@ export function EditCustomerDialog({ customer }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const updateCustomer = useMutation(
+    trpc.customer.update.mutationOptions({
+      onSuccess: () => {
+        toast.success("Customer updated");
+        queryClient.invalidateQueries({
+          queryKey: trpc.customer.list.queryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.customer.search.queryKey(),
+        });
+        router.refresh();
+        setOpen(false);
+      },
+      onError: (err) => {
+        toast.error(err.message ?? "Failed to update customer");
+      },
+    }),
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,38 +63,26 @@ export function EditCustomerDialog({ customer }: Props) {
     const form = e.currentTarget;
     const data = new FormData(form);
 
-    const body: Record<string, string> = {};
-    data.forEach((value, key) => {
-      body[key] = (value as string).trim();
-    });
-
-    if (!body.name) {
+    const name = (data.get("name") as string)?.trim();
+    if (!name) {
       toast.error("Name is required");
       setSubmitting(false);
       return;
     }
 
-    try {
-      const res = await fetch(`/api/customers/${customer.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.error ?? "Failed to update customer");
-        return;
-      }
-
-      toast.success("Customer updated");
-      router.refresh();
-      setOpen(false);
-    } catch {
-      toast.error("Something went wrong.");
-    } finally {
-      setSubmitting(false);
-    }
+    updateCustomer.mutate(
+      {
+        id: customer.id,
+        name,
+        email: (data.get("email") as string)?.trim() || null,
+        phone: (data.get("phone") as string)?.trim() || null,
+        addressLine1: (data.get("addressLine1") as string)?.trim() || null,
+        city: (data.get("city") as string)?.trim() || null,
+        province: (data.get("province") as string)?.trim() || null,
+        postalCode: (data.get("postalCode") as string)?.trim() || null,
+      },
+      { onSettled: () => setSubmitting(false) },
+    );
   }
 
   return (

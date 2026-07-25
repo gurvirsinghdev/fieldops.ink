@@ -18,7 +18,10 @@ export function UserAvatar({ className, size = "default" }: Props) {
   const user = useUserStore((s) => s.user);
 
   const initials = user?.name
-    ? user.name.split(/\s+/).map((n) => n[0]).join("")
+    ? user.name
+        .split(/\s+/)
+        .map((n) => n[0])
+        .join("")
     : "";
 
   return (

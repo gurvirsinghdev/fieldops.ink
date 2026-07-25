@@ -17,12 +17,27 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CustomerSelect } from "./CustomerSelect";
 import { JOB_STATUSES, STATUS_LABEL } from "@/lib/constants";
+import { useTRPC } from "@/lib/trpc/react";
+import { useMutation } from "@tanstack/react-query";
 
 export function NewJobDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState("");
+  const trpc = useTRPC();
+
+  const createJob = useMutation(
+    trpc.job.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Job created");
+        router.refresh();
+        setOpen(false);
+      },
+      onError: (err) => {
+        toast.error(err.message ?? "Failed to create job");
+      },
+    }),
+  );
 
   function resetForm(form: HTMLFormElement) {
     form.reset();
@@ -31,53 +46,41 @@ export function NewJobDialog() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitting(true);
 
     const form = e.currentTarget;
     const data = new FormData(form);
-    const body: Record<string, string> = {};
-    data.forEach((value, key) => {
-      body[key] = (value as string).trim();
-    });
 
-    if (!body.title) {
+    const title = (data.get("title") as string)?.trim();
+    if (!title) {
       toast.error("Title is required");
-      setSubmitting(false);
       return;
     }
     if (!customerId) {
       toast.error("Customer is required");
-      setSubmitting(false);
       return;
     }
-    if (!body.city) {
+    const city = (data.get("city") as string)?.trim();
+    if (!city) {
       toast.error("City is required");
-      setSubmitting(false);
       return;
     }
 
-    try {
-      const res = await fetch("/api/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.error ?? "Failed to create job");
-        return;
-      }
-
-      toast.success("Job created");
-      router.refresh();
-      setOpen(false);
-      resetForm(form);
-    } catch {
-      toast.error("Something went wrong.");
-    } finally {
-      setSubmitting(false);
-    }
+    createJob.mutate(
+      {
+        title,
+        customerId,
+        city,
+        description: (data.get("description") as string)?.trim() || null,
+        status: (data.get("status") as string) || undefined,
+        scheduledAt: (data.get("scheduledAt") as string) || null,
+        addressLine1: (data.get("addressLine1") as string)?.trim() || null,
+        province: (data.get("province") as string)?.trim() || null,
+        postalCode: (data.get("postalCode") as string)?.trim() || null,
+      },
+      {
+        onSettled: () => resetForm(form),
+      },
+    );
   }
 
   return (
@@ -95,7 +98,12 @@ export function NewJobDialog() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" required placeholder="Foundation pour - Site A" />
+            <Input
+              id="title"
+              name="title"
+              required
+              placeholder="Foundation pour - Site A"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -106,7 +114,7 @@ export function NewJobDialog() {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-                <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Status</Label>
               <NativeSelect name="status" defaultValue="Scheduled">
                 {JOB_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -123,7 +131,11 @@ export function NewJobDialog() {
 
           <div className="space-y-1.5">
             <Label htmlFor="description">Description</Label>
-            <Input id="description" name="description" placeholder="Optional notes..." />
+            <Input
+              id="description"
+              name="description"
+              placeholder="Optional notes..."
+            />
           </div>
 
           <div className="border-t pt-3">
@@ -138,8 +150,12 @@ export function NewJobDialog() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? (
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={createJob.isPending}
+          >
+            {createJob.isPending ? (
               <Loader2Icon className="size-3.5 mr-1.5 animate-spin" />
             ) : null}
             Create job

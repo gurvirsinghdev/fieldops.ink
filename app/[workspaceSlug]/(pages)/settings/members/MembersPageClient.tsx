@@ -11,35 +11,11 @@ import {
 } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import {
-  CopyIcon,
-  Loader2Icon,
-  MailIcon,
-  PlusIcon,
-  XIcon,
-} from "lucide-react";
+import { CopyIcon, Loader2Icon, MailIcon, PlusIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
-
-interface Member {
-  id: string;
-  role: string;
-  user: { id: string; name: string; email: string };
-}
-
-interface Invitation {
-  id: string;
-  email: string;
-  role: string;
-  createdAt: Date;
-  expiresAt: Date;
-}
-
-interface Props {
-  members: Member[];
-  invitations: Invitation[];
-  currentRole: string;
-  currentUserId: string;
-}
+import { useTRPC } from "@/lib/trpc/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MembersPageSkeleton } from "@/components/settings/MembersPageSkeleton";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-CA", {
@@ -49,46 +25,66 @@ function formatDate(date: Date): string {
   });
 }
 
-export function MembersPageClient({
-  members,
-  invitations,
-  currentRole,
-  currentUserId,
-}: Props) {
+export function MembersPageClient() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("Member");
-  const [inviting, setInviting] = useState(false);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery(trpc.workspace.members.queryOptions());
+
+  const createInvitation = useMutation(
+    trpc.invitation.create.mutationOptions({
+      onSuccess: (data) => {
+        setInviteLink(data.link);
+        toast.success("Invitation created");
+        queryClient.invalidateQueries({
+          queryKey: trpc.workspace.members.queryKey(),
+        });
+        router.refresh();
+        setEmail("");
+      },
+      onError: (err) => {
+        toast.error(err.message ?? "Failed to send invitation");
+      },
+    }),
+  );
+
+  const revokeInvitation = useMutation(
+    trpc.invitation.revoke.mutationOptions({
+      onSuccess: () => {
+        toast.success("Invitation revoked");
+        queryClient.invalidateQueries({
+          queryKey: trpc.workspace.members.queryKey(),
+        });
+        router.refresh();
+      },
+      onError: (err) => {
+        toast.error(err.message ?? "Failed to revoke invitation");
+      },
+    }),
+  );
+
+  if (isLoading) {
+    return <MembersPageSkeleton />;
+  }
+
+  const members = data?.members ?? [];
+  const invitations = data?.invitations ?? [];
+  const currentRole = data?.currentRole ?? "Member";
+  const currentUserId = data?.currentUserId ?? "";
   const canInvite = currentRole === "Owner" || currentRole === "Admin";
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
 
-    setInviting(true);
-    try {
-      const res = await fetch("/api/invitations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), role }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error ?? "Failed to send invitation");
-        return;
-      }
-
-      setInviteLink(data.link);
-      toast.success("Invitation created");
-      router.refresh();
-      setEmail("");
-    } catch {
-      toast.error("Something went wrong.");
-    } finally {
-      setInviting(false);
-    }
+    createInvitation.mutate({
+      email: email.trim(),
+      role: role as "Member" | "Admin",
+    });
   }
 
   function copyLink() {
@@ -98,22 +94,8 @@ export function MembersPageClient({
     }
   }
 
-  async function handleRevoke(invitationId: string, email: string) {
-    try {
-      const res = await fetch(`/api/invitations/${invitationId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        toast.error("Failed to revoke invitation");
-        return;
-      }
-
-      toast.success(`Invitation to ${email} revoked`);
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
-    }
+  function handleRevoke(invitationId: string) {
+    revokeInvitation.mutate({ id: invitationId });
   }
 
   return (
@@ -155,9 +137,7 @@ export function MembersPageClient({
 
         <div className="rounded-lg border bg-card">
           <div className="p-4 border-b">
-            <h2 className="font-semibold">
-              Invite members
-            </h2>
+            <h2 className="font-semibold">Invite members</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {canInvite
                 ? "Send an invitation link to add someone to this workspace."
@@ -201,9 +181,9 @@ export function MembersPageClient({
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={inviting}
+                    disabled={createInvitation.isPending}
                   >
-                    {inviting ? (
+                    {createInvitation.isPending ? (
                       <Loader2Icon className="size-3.5 mr-1.5 animate-spin" />
                     ) : (
                       <PlusIcon className="size-3.5 mr-1.5" />
@@ -223,7 +203,6 @@ export function MembersPageClient({
                     </Button>
                   )}
                 </div>
-
               </form>
             ) : (
               <p className="text-sm text-muted-foreground py-4">
@@ -264,7 +243,7 @@ export function MembersPageClient({
                         variant="ghost"
                         size="icon"
                         className="size-7 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRevoke(inv.id, inv.email)}
+                        onClick={() => handleRevoke(inv.id)}
                       >
                         <XIcon className="size-3.5" />
                       </Button>

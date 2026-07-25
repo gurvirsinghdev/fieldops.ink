@@ -24,7 +24,8 @@ async function uploadImage(file: File, folder: string): Promise<string> {
         { folder },
         (error, result) => {
           if (error) reject(error);
-          else if (!result) reject(new Error("Cloudinary upload returned no result"));
+          else if (!result)
+            reject(new Error("Cloudinary upload returned no result"));
           else resolve(result);
         },
       );
